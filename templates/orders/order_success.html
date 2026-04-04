@@ -2,7 +2,11 @@
 
 {% block content %}
 
-<h2>✅ Order Placed Successfully!</h2>
-<a href="/">Continue Shopping</a>
+<h2>🎉 Order Placed Successfully!</h2>
+
+<p>Your Order ID: <strong>#{{ order.id }}</strong></p>
+<p>Total Amount: ₹{{ order.total_amount }}</p>
+
+<a href="/" class="btn btn-primary">Continue Shopping</a>
 
 {% endblock %}
