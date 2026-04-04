@@ -1,29 +1,135 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Bestsellers</h2>
 
-<div class="row">
-{% for book in books %}
-    <div class="col-md-3">
-        <div class="card mb-3">
-            {% if book.image %}
-                <a href="{% url 'book_detail' book.id %}">
-                    <img src="{{ book.image.url }}" class="card-img-top">
-                </a>
-            {% endif %}
-            <div class="card-body">
-                <h5>
-                    <a href="{% url 'book_detail' book.id %}">
-                        {{ book.title }}
-                    </a>
-                </h5>
-                <p>₹{{ book.price }}</p>
-                <p>{{ book.category.name }}</p>
+<div class="bestsellers-container">
+    <!-- Page Header -->
+    <div class="bestsellers-header">
+        <div class="header-badge">
+            <i class="bi bi-star-fill"></i> Editor's Pick
+        </div>
+        <h1 class="bestsellers-title">
+            <i class="bi bi-trophy-fill"></i> Bestsellers
+        </h1>
+        <p class="bestsellers-subtitle">
+            Discover the most loved and畅销 books of the season
+        </p>
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="stat-number">{{ books|length }}</span>
+                <span class="stat-label">Books</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-number">10k+</span>
+                <span class="stat-label">Copies Sold</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-number">500+</span>
+                <span class="stat-label">Reviews</span>
             </div>
         </div>
     </div>
-{% endfor %}
+
+    <!-- Bestsellers Grid -->
+    <div class="bestsellers-grid">
+        {% for book in books %}
+        <div class="bestseller-card">
+            <!-- Rank Badge -->
+            <div class="rank-badge">
+                <span class="rank-number">#{{ forloop.counter }}</span>
+                <i class="bi bi-trophy-fill"></i>
+            </div>
+            
+            <!-- Book Image -->
+            <div class="book-image-wrapper">
+                {% if book.image %}
+                    <a href="{% url 'book_detail' book.id %}" class="book-link">
+                        <img src="{{ book.image.url }}" class="book-image" alt="{{ book.title }}">
+                        <div class="image-overlay">
+                            <i class="bi bi-eye-fill"></i>
+                            <span>Quick View</span>
+                        </div>
+                    </a>
+                {% else %}
+                    <div class="no-image">
+                        <i class="bi bi-book"></i>
+                        <span>No Cover</span>
+                    </div>
+                {% endif %}
+                
+                <!-- Sale Badge for Top 3 -->
+                {% if forloop.counter <= 3 %}
+                <div class="sale-badge">
+                    <i class="bi bi-fire"></i>
+                    <span>Hot!</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Book Info -->
+            <div class="book-info">
+                <div class="book-category">
+                    <i class="bi bi-tag-fill"></i>
+                    <span>{{ book.category.name }}</span>
+                </div>
+                
+                <h3 class="book-title">
+                    <a href="{% url 'book_detail' book.id %}">
+                        {{ book.title }}
+                    </a>
+                </h3>
+                
+                <p class="book-author">
+                    <i class="bi bi-person-fill"></i>
+                    {{ book.author|default:"Unknown Author" }}
+                </p>
+                
+                <!-- Rating Stars -->
+                <div class="book-rating">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-half"></i>
+                    </div>
+                    <span class="rating-count">({{ forloop.counter|add:"42" }})</span>
+                </div>
+                
+                <!-- Price -->
+                <div class="book-price">
+                    <span class="current-price">₹{{ book.price }}</span>
+                    {% if book.original_price %}
+                        <span class="original-price">₹{{ book.original_price }}</span>
+                        <span class="discount">-{{ book.discount }}%</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="book-actions">
+                    <a href="{% url 'add_to_cart' book.id %}" class="btn-add-cart">
+                        <i class="bi bi-cart-plus-fill"></i>
+                        Add to Cart
+                    </a>
+                    <a href="{% url 'book_detail' book.id %}" class="btn-details">
+                        <i class="bi bi-info-circle"></i>
+                        Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="bi bi-emoji-frown"></i>
+            <h3>No books found</h3>
+            <p>Check back later for our bestsellers!</p>
+        </div>
+        {% endfor %}
+    </div>
 </div>
+
+
 
 {% endblock %}
