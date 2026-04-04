@@ -6,7 +6,7 @@ from books.models import Book
 # 🛒 View Cart
 def view_cart(request):
     if not request.user.is_authenticated:
-        return redirect('/admin/')  # temporary (we'll fix with login later)
+        return redirect('/accounts/login/') # temporary (we'll fix with login later)
 
     cart, created = Cart.objects.get_or_create(user=request.user)
     items = CartItem.objects.filter(cart=cart)
@@ -25,7 +25,7 @@ def view_cart(request):
 # ➕ Add to Cart
 def add_to_cart(request, book_id):
     if not request.user.is_authenticated:
-        return redirect('/admin/')  # temporary
+        return redirect('/accounts/login/')  # temporary
 
     cart, created = Cart.objects.get_or_create(user=request.user)
     book = Book.objects.get(id=book_id)

@@ -5,7 +5,7 @@ from .models import Order, OrderItem
 
 def checkout(request):
     if not request.user.is_authenticated:
-        return redirect('/admin/')
+        return redirect('/accounts/login/')
 
     cart = Cart.objects.get(user=request.user)
     items = CartItem.objects.filter(cart=cart)

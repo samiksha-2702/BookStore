@@ -1,9 +1,16 @@
 <nav class="navbar navbar-dark bg-dark px-3">
     <a class="navbar-brand text-white" href="/">📚 BookStore</a>
-
+    
     <div>
         <a href="/cart/" class="text-white me-3">Cart</a>
         <a href="/orders/" class="text-white me-3">Orders</a>
-        <a href="/accounts/login/" class="text-white">Login</a>
+
+        {% if user.is_authenticated %}
+            <span class="text-white me-3">Hello, {{ user.username }}</span>
+            <a href="/accounts/logout/" class="text-white">Logout</a>
+        {% else %}
+            <a href="/accounts/login/" class="text-white me-3">Login</a>
+            <a href="/accounts/signup/" class="text-white">Signup</a>
+        {% endif %}
     </div>
 </nav>
