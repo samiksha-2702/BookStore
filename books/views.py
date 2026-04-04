@@ -3,8 +3,8 @@ from .models import Book
 
 def book_list(request):
     books = Book.objects.all()
-    return render(request, 'book_list.html', {'books': books})
+    return render(request, 'books/book_list.html', {'books': books})
 
 def book_detail(request, id):
     book = get_object_or_404(Book, id=id)
-    return render(request, 'book_detail.html', {'book': book})
+    return render(request, 'books/book_detail.html', {'book': book})

@@ -29,7 +29,7 @@ urlpatterns = [
 
     # future apps (we'll use later)
     # path('accounts/', include('accounts.urls')),
-    # path('cart/', include('cart.urls')),
+    path('cart/', include('cart.urls')),
     # path('orders/', include('orders.urls')),
 ]
 

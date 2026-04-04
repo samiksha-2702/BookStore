@@ -16,6 +16,6 @@
 <a href="/" class="btn btn-secondary">Back</a>
 
 <!-- Next step: Add to Cart -->
-<a href="#" class="btn btn-primary">Add to Cart</a>
+<a href="{% url 'add_to_cart' book.id %}" class="btn btn-primary">Add to Cart</a>
 
 {% endblock %}
