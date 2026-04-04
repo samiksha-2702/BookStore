@@ -126,3 +126,13 @@ STATICFILES_DIRS = [
 ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media'
+
+# Razorpay keys (test keys for development)
+RAZORPAY_KEY_ID = 'rzp_test_SZQzHYqcsaimLd'
+RAZORPAY_KEY_SECRET = 'JQRAYWgCvmOQwZ7wLlAuK0Fo'
+
+# For Django >= 4.0
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]

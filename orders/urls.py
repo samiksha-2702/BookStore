@@ -5,5 +5,7 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('success/<int:order_id>/', views.order_success, name='order_success'),
     path('history/', views.order_history, name='order_history'),
+    path('payment/success/', views.payment_success, name='payment_success'),
     path('invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
+
 ]
