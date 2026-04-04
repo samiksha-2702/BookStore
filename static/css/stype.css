@@ -1,3 +1,68 @@
+/* Myntra-style UI */
+
 body {
-    background-color: #f5f5f5;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f5f6;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #ffffff !important;
+}
+
+.navbar-brand {
+    color: #ff3f6c !important;
+}
+
+.nav-link {
+    color: #333 !important;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #ff3f6c !important;
+    transition: 0.3s;
+}
+
+/* Buttons */
+.btn-danger {
+    background-color: #ff3f6c;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #e7335e;
+}
+
+/* Container */
+.main-container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* Navbar Styling */
+
+.custom-navbar {
+    background-color: #ffffff;
+}
+
+.navbar-brand {
+    color: #ff3f6c !important;
+    font-size: 22px;
+}
+
+.nav-link {
+    color: #333 !important;
+    font-weight: 500;
+    margin-right: 15px;
+}
+
+.nav-link:hover {
+    color: #ff3f6c !important;
+    transition: 0.3s;
+}
+
+.username-text {
+    color: #333;
+    font-weight: 500;
 }
