@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Checkout</h2>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <input type="text" name="address" placeholder="Enter Address" class="form-control mb-2">
+    
+    <button type="submit" class="btn btn-success">Place Order</button>
+</form>
+
+{% endblock %}

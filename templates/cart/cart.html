@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Your Cart</h2>
+
+<table class="table">
+    <tr>
+        <th>Book</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Total</th>
+    </tr>
+
+    {% for item in cart_items %}
+    <tr>
+        <td>{{ item.book.title }}</td>
+        <td>₹{{ item.book.price }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>₹{{ item.total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a href="/checkout/" class="btn btn-success">Checkout</a>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>{{ book.title }}</h2>
+
+{% if book.image %}
+    <img src="{{ book.image.url }}" width="300">
+{% endif %}
+
+<p><strong>Author:</strong> {{ book.author }}</p>
+<p><strong>Category:</strong> {{ book.category.name }}</p>
+<p><strong>Price:</strong> ₹{{ book.price }}</p>
+<p>{{ book.description }}</p>
+
+<a href="/" class="btn btn-secondary">Back</a>
+
+<!-- Next step: Add to Cart -->
+<a href="#" class="btn btn-primary">Add to Cart</a>
+
+{% endblock %}
