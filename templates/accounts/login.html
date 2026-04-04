@@ -1,18 +1,230 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Login</h2>
 
-<form method="POST">
-    {% csrf_token %}
-    <input type="text" name="username" placeholder="Username" required><br><br>
-    <input type="password" name="password" placeholder="Password" required><br><br>
-    <button type="submit">Login</button>
-</form>
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="bi bi-book-half"></i>
+            </div>
+            <h2 class="auth-title">Welcome Back!</h2>
+            <p class="auth-subtitle">Sign in to continue your reading journey</p>
+        </div>
 
-{% if error %}
-<p style="color:red">{{ error }}</p>
-{% endif %}
+        <!-- Error Messages -->
+        {% if error %}
+        <div class="alert alert-custom error-alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>{{ error }}</span>
+            <button type="button" class="close-alert" onclick="this.parentElement.style.display='none'">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        {% endif %}
 
-<a href="/accounts/signup/">Create account</a>
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-custom {{ message.tags }}-alert">
+                <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-info-circle-fill{% endif %}"></i>
+                <span>{{ message }}</span>
+                <button type="button" class="close-alert" onclick="this.parentElement.style.display='none'">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Login Form -->
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username" class="form-label">
+                    <i class="bi bi-person-fill"></i> Username
+                </label>
+                <div class="input-wrapper">
+                    <input type="text" 
+                           id="username" 
+                           name="username" 
+                           class="auth-input" 
+                           placeholder="Enter your username"
+                           required 
+                           autofocus>
+                    <i class="bi bi-person input-icon"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <i class="bi bi-lock-fill"></i> Password
+                </label>
+                <div class="input-wrapper">
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="auth-input" 
+                           placeholder="Enter your password"
+                           required>
+                    <i class="bi bi-lock input-icon"></i>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                        <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="remember" value="remember">
+                    <span class="checkmark"></span>
+                    Remember me
+                </label>
+                <a href="/accounts/password-reset/" class="forgot-link">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="auth-btn login-btn">
+                <i class="bi bi-box-arrow-in-right"></i>
+                Sign In
+            </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="auth-divider">
+            <span>Or continue with</span>
+        </div>
+
+        <!-- Social Login Options -->
+        <div class="social-login">
+            <button class="social-btn google-btn" onclick="socialLogin('google')">
+                <i class="bi bi-google"></i>
+                <span>Google</span>
+            </button>
+            <button class="social-btn facebook-btn" onclick="socialLogin('facebook')">
+                <i class="bi bi-facebook"></i>
+                <span>Facebook</span>
+            </button>
+        </div>
+
+        <!-- Sign Up Link -->
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="/accounts/signup/" class="signup-link">Create Account</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Additional inline styles for better visibility - Add these to your style.css */
+    .toggle-password {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0;
+        z-index: 2;
+    }
+    
+    .toggle-password:hover {
+        color: var(--accent-gold);
+    }
+    
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+    
+    .checkbox-label input {
+        display: none;
+    }
+    
+    .checkmark {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--border-light);
+        border-radius: 4px;
+        background: var(--bg-dark-tertiary);
+        display: inline-block;
+        position: relative;
+        transition: var(--transition-fast);
+    }
+    
+    .checkbox-label input:checked + .checkmark {
+        background: var(--accent-gold);
+        border-color: var(--accent-gold);
+    }
+    
+    .checkbox-label input:checked + .checkmark::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: var(--bg-dark-primary);
+        font-size: 11px;
+        font-weight: bold;
+    }
+    
+    .close-alert {
+        background: none;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        padding: 0;
+        margin-left: auto;
+        opacity: 0.7;
+    }
+    
+    .close-alert:hover {
+        opacity: 1;
+    }
+</style>
+
+<script>
+    // Toggle password visibility
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('bi-eye-slash');
+            toggleIcon.classList.add('bi-eye');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('bi-eye');
+            toggleIcon.classList.add('bi-eye-slash');
+        }
+    }
+    
+    // Social login placeholders
+    function socialLogin(provider) {
+        alert(`${provider} login integration will be added soon!`);
+        // You can implement actual OAuth redirects here
+        // window.location.href = `/accounts/${provider}/login/`;
+    }
+    
+    // Auto-hide alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert-custom');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                if (alert) {
+                    alert.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => {
+                        if (alert) alert.style.display = 'none';
+                    }, 300);
+                }
+            }, 5000);
+        });
+    });
+</script>
+
 {% endblock %}

@@ -1,14 +1,349 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 
-{% block content %}
-<h2>Signup</h2>
+ {% block content %}
 
-<form method="POST">
-    {% csrf_token %}
-    <input type="text" name="username" placeholder="Username" required><br><br>
-    <input type="password" name="password" placeholder="Password" required><br><br>
-    <button type="submit">Signup</button>
-</form>
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <h2 class="auth-title">Create Account</h2>
+            <p class="auth-subtitle">Join our book community today</p>
+        </div>
 
-<a href="/accounts/login/">Already have an account? Login</a>
+        <!-- Error Messages -->
+        {% if error %}
+        <div class="alert alert-custom error-alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>{{ error }}</span>
+            <button type="button" class="close-alert" onclick="this.parentElement.style.display='none'">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        {% endif %}
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-custom {% if message.tags == 'error' %}error-alert{% else %}info-alert{% endif %}">
+                <i class="bi {% if message.tags == 'error' %}bi-exclamation-triangle-fill{% else %}bi-info-circle-fill{% endif %}"></i>
+                <span>{{ message }}</span>
+                <button type="button" class="close-alert" onclick="this.parentElement.style.display='none'">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Signup Form -->
+        <form method="POST" class="auth-form" id="signupForm">
+            {% csrf_token %}
+            
+            <!-- Full Name -->
+            <div class="form-group">
+                <label for="fullname" class="form-label">
+                    <i class="bi bi-person-badge-fill"></i> Full Name
+                </label>
+                <div class="input-wrapper">
+                    <input type="text" 
+                           id="fullname" 
+                           name="fullname" 
+                           class="auth-input" 
+                           placeholder="Enter your full name"
+                           value="{{ request.POST.fullname }}"
+                           autofocus>
+                    <i class="bi bi-person input-icon"></i>
+                </div>
+            </div>
+
+            <!-- Username -->
+            <div class="form-group">
+                <label for="username" class="form-label">
+                    <i class="bi bi-person-fill"></i> Username
+                </label>
+                <div class="input-wrapper">
+                    <input type="text" 
+                           id="username" 
+                           name="username" 
+                           class="auth-input" 
+                           placeholder="Choose a username"
+                           value="{{ request.POST.username }}"
+                           required>
+                    <i class="bi bi-at input-icon"></i>
+                </div>
+                <div class="field-hint" id="usernameHint">
+                    <i class="bi bi-info-circle-fill"></i> Username must be unique and contain only letters, numbers, and underscores
+                </div>
+                <div class="field-error" id="usernameError" style="display: none;"></div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email" class="form-label">
+                    <i class="bi bi-envelope-fill"></i> Email Address
+                </label>
+                <div class="input-wrapper">
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           class="auth-input" 
+                           placeholder="Enter your email"
+                           value="{{ request.POST.email }}">
+                    <i class="bi bi-envelope input-icon"></i>
+                </div>
+                <div class="field-hint">
+                    <i class="bi bi-info-circle-fill"></i> We'll send order confirmations to this email
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <i class="bi bi-lock-fill"></i> Password
+                </label>
+                <div class="input-wrapper">
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="auth-input" 
+                           placeholder="Create a password"
+                           required>
+                    <i class="bi bi-lock input-icon"></i>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('password', 'toggleIcon1')">
+                        <i class="bi bi-eye-slash" id="toggleIcon1"></i>
+                    </button>
+                </div>
+                <div class="password-strength" id="passwordStrength">
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                </div>
+                <div class="field-hint">
+                    <i class="bi bi-shield-lock-fill"></i> Password must be at least 8 characters
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label">
+                    <i class="bi bi-lock-fill"></i> Confirm Password
+                </label>
+                <div class="input-wrapper">
+                    <input type="password" 
+                           id="confirmPassword" 
+                           name="confirm_password" 
+                           class="auth-input" 
+                           placeholder="Confirm your password"
+                           required>
+                    <i class="bi bi-lock input-icon"></i>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('confirmPassword', 'toggleIcon2')">
+                        <i class="bi bi-eye-slash" id="toggleIcon2"></i>
+                    </button>
+                </div>
+                <div class="field-error" id="passwordMatchError" style="display: none;">
+                    <i class="bi bi-exclamation-circle-fill"></i> Passwords do not match
+                </div>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div class="form-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="terms" id="termsCheckbox" required>
+                    <span class="checkmark"></span>
+                    I agree to the 
+                    <a href="/terms/" class="terms-link">Terms of Service</a> 
+                    and 
+                    <a href="/privacy/" class="terms-link">Privacy Policy</a>
+                </label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="auth-btn signup-btn" id="signupBtn">
+                <i class="bi bi-person-plus-fill"></i>
+                Create Account
+            </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="auth-divider">
+            <span>Or sign up with</span>
+        </div>
+
+        <!-- Social Signup Options -->
+        <div class="social-login">
+            <button type="button" class="social-btn google-btn" onclick="socialSignup('google')">
+                <i class="bi bi-google"></i>
+                <span>Google</span>
+            </button>
+            <button type="button" class="social-btn facebook-btn" onclick="socialSignup('facebook')">
+                <i class="bi bi-facebook"></i>
+                <span>Facebook</span>
+            </button>
+        </div>
+
+        <!-- Login Link -->
+        <div class="auth-footer">
+            <p>Already have an account? <a href="/accounts/login/" class="login-link">Sign In</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle password visibility
+    function togglePasswordVisibility(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(iconId);
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('bi-eye-slash');
+            toggleIcon.classList.add('bi-eye');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('bi-eye');
+            toggleIcon.classList.add('bi-eye-slash');
+        }
+    }
+    
+    // Password strength checker
+    const passwordInput = document.getElementById('password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strength = checkPasswordStrength(password);
+            updateStrengthBars(strength);
+        });
+    }
+    
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (password.match(/[a-z]+/)) strength++;
+        if (password.match(/[A-Z]+/)) strength++;
+        if (password.match(/[0-9]+/)) strength++;
+        if (password.match(/[$@#&!]+/)) strength++;
+        return strength;
+    }
+    
+    function updateStrengthBars(strength) {
+        const bars = document.querySelectorAll('.strength-bar');
+        const colors = ['#ff4444', '#ffaa44', '#ffdd44', '#44ff44', '#00cc44'];
+        
+        bars.forEach((bar, index) => {
+            if (index < strength) {
+                bar.style.background = colors[strength - 1] || colors[3];
+                bar.style.opacity = '1';
+            } else {
+                bar.style.background = '#333';
+                bar.style.opacity = '0.3';
+            }
+        });
+    }
+    
+    // Password match validation
+    const confirmPassword = document.getElementById('confirmPassword');
+    if (confirmPassword) {
+        confirmPassword.addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirm = this.value;
+            const errorDiv = document.getElementById('passwordMatchError');
+            
+            if (password !== confirm && confirm.length > 0) {
+                errorDiv.style.display = 'flex';
+                this.style.borderColor = '#b34e5e';
+            } else {
+                errorDiv.style.display = 'none';
+                this.style.borderColor = '';
+            }
+        });
+    }
+    
+    // Username validation (no spaces, only letters, numbers, underscore)
+    const usernameInput = document.getElementById('username');
+    if (usernameInput) {
+        usernameInput.addEventListener('input', function() {
+            const username = this.value;
+            const usernameRegex = /^[a-zA-Z0-9_]*$/;
+            const errorDiv = document.getElementById('usernameError');
+            
+            if (!usernameRegex.test(username) && username.length > 0) {
+                errorDiv.style.display = 'flex';
+                errorDiv.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i> Username can only contain letters, numbers, and underscores';
+                this.style.borderColor = '#b34e5e';
+            } else {
+                errorDiv.style.display = 'none';
+                this.style.borderColor = '';
+            }
+        });
+    }
+    
+    // Form validation before submit
+    const signupForm = document.getElementById('signupForm');
+    if (signupForm) {
+        signupForm.addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('termsCheckbox');
+            const username = document.getElementById('username').value;
+            
+            let hasError = false;
+            
+            // Check username
+            const usernameRegex = /^[a-zA-Z0-9_]+$/;
+            if (!usernameRegex.test(username)) {
+                showError('username', 'Username can only contain letters, numbers, and underscores');
+                hasError = true;
+            }
+            
+            // Check password match
+            if (password !== confirm) {
+                document.getElementById('passwordMatchError').style.display = 'flex';
+                hasError = true;
+            }
+            
+            // Check terms
+            if (!terms.checked) {
+                alert('Please agree to the Terms of Service and Privacy Policy');
+                hasError = true;
+            }
+            
+            if (hasError) {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    function showError(field, message) {
+        const errorDiv = document.getElementById(`${field}Error`);
+        if (errorDiv) {
+            errorDiv.style.display = 'flex';
+            errorDiv.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> ${message}`;
+        }
+    }
+    
+    // Social signup
+    function socialSignup(provider) {
+        alert(`${provider} signup will be available soon!`);
+        // Implement OAuth redirect here
+        // window.location.href = `/accounts/${provider}/signup/`;
+    }
+    
+    // Auto-hide alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert-custom');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                if (alert) {
+                    alert.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => {
+                        if (alert) alert.style.display = 'none';
+                    }, 300);
+                }
+            }, 5000);
+        });
+    });
+</script>
+
 {% endblock %}
