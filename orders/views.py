@@ -1,21 +1,43 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Order, OrderItem
 from cart.models import CartItem
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
+from cart.models import CartItem, Cart
 
-# Checkout page
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from cart.models import Cart, CartItem
+from .models import Order, OrderItem
+
 @login_required
 def checkout(request):
-    cart_items = CartItem.objects.filter(user=request.user)
-    total = sum(item.book.price * item.quantity for item in cart_items)
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except Cart.DoesNotExist:
+        cart = None
+
+    if cart:
+        cart_items = CartItem.objects.filter(cart=cart)
+    else:
+        cart_items = []
+
+    # Calculate total for each item and overall total
+    total_amount = 0
+    for item in cart_items:
+        item.total_price = item.book.price * item.quantity
+        total_amount += item.total_price
 
     if request.method == 'POST':
-        # Simulate payment success
-        order = Order.objects.create(user=request.user, total_amount=total, status='Completed')
-
+        # Create Order
+        order = Order.objects.create(
+            user=request.user,
+            total_amount=total_amount,
+            status='Completed'
+        )
+        # Create Order Items
         for item in cart_items:
             OrderItem.objects.create(
                 order=order,
@@ -28,13 +50,16 @@ def checkout(request):
         cart_items.delete()
         return redirect('order_success', order_id=order.id)
 
-    return render(request, 'orders/checkout.html', {'cart_items': cart_items, 'total': total})
+    return render(request, 'orders/checkout.html', {
+        'cart_items': cart_items,
+        'total_amount': total_amount
+    })
 
 # Order success page
 @login_required
 def order_success(request, order_id):
     order = Order.objects.get(id=order_id)
-    return render(request, 'orders/success.html', {'order': order})
+    return render(request, 'orders/order_success.html', {'order': order})
 
 # Order history page
 @login_required
@@ -52,3 +77,14 @@ def download_invoice(request, order_id):
     if pisa_status.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
+    
+
+@login_required
+def download_invoice(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    # Add total_price for each item
+    for item in order.items.all():  # related_name='items'
+        item.total_price = item.price * item.quantity
+
+    return render(request, 'orders/invoice.html', {'order': order})

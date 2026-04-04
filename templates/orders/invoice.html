@@ -2,9 +2,11 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Checkout</h2>
+    <h2>Invoice for Order #{{ order.id }}</h2>
+    <p><strong>User:</strong> {{ order.user.username }}</p>
+    <p><strong>Date:</strong> {{ order.created_at }}</p>
+    <p><strong>Status:</strong> {{ order.status }}</p>
 
-    {% if cart_items %}
     <table class="table table-bordered mt-3">
         <thead>
             <tr>
@@ -15,29 +17,21 @@
             </tr>
         </thead>
         <tbody>
-            {% for item in cart_items %}
+            {% for item in order.items.all %}
             <tr>
                 <td>{{ item.book.title }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>₹{{ item.book.price }}</td>
-                <td>₹{{ item.total_price }}</td>
+                <td>₹{{ item.price }}</td>
+                <td>₹{{ item.price|floatformat:2|add:"0"|floatformat:2|multiply:item.quantity }}</td>
             </tr>
             {% endfor %}
             <tr>
                 <td colspan="3" class="text-end"><strong>Total Amount:</strong></td>
-                <td><strong>₹{{ total_amount }}</strong></td>
+                <td><strong>₹{{ order.total_amount }}</strong></td>
             </tr>
         </tbody>
     </table>
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-success">Proceed to Payment</button>
-    </form>
-
-    {% else %}
-    <p>Your cart is empty.</p>
-    <a href="/" class="btn btn-primary">Continue Shopping</a>
-    {% endif %}
+    <a href="{% url 'order_history' %}" class="btn btn-secondary">Back to Orders</a>
 </div>
 {% endblock %}
