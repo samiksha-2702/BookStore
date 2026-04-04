@@ -31,3 +31,7 @@ def book_list(request):
 def book_detail(request, id):
     book = get_object_or_404(Book, id=id)
     return render(request, 'books/book_detail.html', {'book': book})
+
+def bestsellers(request):
+    books = Book.objects.filter(is_bestseller=True)
+    return render(request, 'books/bestseller.html', {'books': books})

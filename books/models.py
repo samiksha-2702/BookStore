@@ -16,6 +16,7 @@ class Book(models.Model):
     image = models.ImageField(upload_to='books/', blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='books')
     created_at = models.DateTimeField(auto_now_add=True)
+    is_bestseller = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
