@@ -1,15 +1,26 @@
 {% extends 'base.html' %}
-
 {% block content %}
-
 <h2>Checkout</h2>
+<table class="table">
+    <tr>
+        <th>Book</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Total</th>
+    </tr>
+    {% for item in cart_items %}
+    <tr>
+        <td>{{ item.book.title }}</td>
+        <td>₹{{ item.book.price }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>₹{{ item.book.price|mul:item.quantity }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<h4>Total: ₹{{ total }}</h4>
 
-<form method="post">
+<form method="POST">
     {% csrf_token %}
-    
-    <input type="text" name="address" placeholder="Enter Address" class="form-control mb-2">
-    
-    <button type="submit" class="btn btn-success">Place Order</button>
+    <button class="btn btn-dark">Pay Now</button>
 </form>
-
 {% endblock %}

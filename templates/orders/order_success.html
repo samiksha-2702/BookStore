@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
-
 {% block content %}
+<h2>Order Successful!</h2>
+<p>Order #{{ order.id }} completed.</p>
 
-<h2>🎉 Order Placed Successfully!</h2>
+<a href="{% url 'order_history' %}" class="btn btn-primary">View Orders</a>
+<a href="/" class="btn btn-secondary">Continue Shopping</a>
 
-<p>Your Order ID: <strong>#{{ order.id }}</strong></p>
-<p>Total Amount: ₹{{ order.total_amount }}</p>
-
-<a href="/" class="btn btn-primary">Continue Shopping</a>
-
+<!-- Download invoice -->
+<a href="{% url 'download_invoice' order.id %}" class="btn btn-dark mt-2">Download Invoice PDF</a>
 {% endblock %}
