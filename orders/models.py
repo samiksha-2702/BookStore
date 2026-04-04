@@ -18,7 +18,7 @@ class Order(models.Model):
         return f"Order #{self.id} by {self.user.username}"
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')  # <-- related_name added
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')  # ✅ related_name added
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     price = models.FloatField()
