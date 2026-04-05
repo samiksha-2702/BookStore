@@ -130,8 +130,10 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media'
 
 # Razorpay keys (test keys for development)
-RAZORPAY_KEY_ID = config('id')
-RAZORPAY_KEY_SECRET = config('key')
+RAZORPAY_KEY_ID = 'rzp_test_SZQzHYqcsaimLd'
+RAZORPAY_KEY_SECRET = 'JQRAYWgCvmOQwZ7wLlAuK0Fo'
+
+
 
 # For Django >= 4.0
 CSRF_TRUSTED_ORIGINS = [

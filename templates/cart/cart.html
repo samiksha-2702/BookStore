@@ -1,337 +1,39 @@
 {% extends 'base.html' %}
-
 {% block content %}
-
-<div class="container mt-4">
-    <!-- Page Header -->
-    <div class="cart-header mb-4">
-        <h2 class="cart-title">
-            <i class="bi bi-cart-fill"></i> Your Shopping Cart
-        </h2>
-        <p class="text-muted">Review and manage the items in your cart</p>
-    </div>
-
-    {% if cart_items %}
-        <!-- Cart Table - Enhanced -->
-        <div class="cart-table-wrapper mb-4">
-            <div class="table-responsive">
-                <table class="cart-table">
-                    <thead>
-                        <tr>
-                            <th>Product Details</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in cart_items %}
-                        <tr class="cart-item" data-item-id="{{ item.id }}">
-                            <td class="product-info">
-                                <div class="product-detail">
-                                    {% if item.book.image %}
-                                        <img src="{{ item.book.image.url }}" class="cart-product-img" alt="{{ item.book.title }}">
-                                    {% else %}
-                                        <div class="cart-product-placeholder">
-                                            <i class="bi bi-book"></i>
-                                        </div>
-                                    {% endif %}
-                                    <div class="product-meta">
-                                        <h6 class="product-name">{{ item.book.title }}</h6>
-                                        <p class="product-category">
-                                            <i class="bi bi-tag-fill"></i> {{ item.book.category.name }}
-                                        </p>
-                                        <p class="product-author">
-                                            <i class="bi bi-pencil-fill"></i> {{ item.book.author }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="product-price">
-                                <div class="price-info">
-                                    <span class="current-price">₹{{ item.book.price }}</span>
-                                    {% if item.book.original_price %}
-                                        <span class="original-price">₹{{ item.book.original_price }}</span>
-                                    {% endif %}
-                                </div>
-                            </td>
-                            <td class="product-quantity">
-                                <div class="quantity-control">
-                                    <a href="{% url 'decrease_quantity' item.id %}" class="quantity-btn decrease-btn">
-                                        <i class="bi bi-dash-lg"></i>
-                                    </a>
-                                    <input type="number" class="quantity-input" value="{{ item.quantity }}" 
-                                           min="1" max="{{ item.book.stock|default:99 }}" readonly>
-                                    <a href="{% url 'increase_quantity' item.id %}" class="quantity-btn increase-btn">
-                                        <i class="bi bi-plus-lg"></i>
-                                    </a>
-                                </div>
-                            </td>
-                            <td class="product-total">
-                                <div class="total-price">₹{{ item.total }}</div>
-                            </td>
-                            <td class="product-action">
-                                <a href="{% url 'remove_from_cart' item.id %}" class="remove-btn" 
-                                   onclick="return confirm('Are you sure you want to remove this item from your cart?')">
-                                    <i class="bi bi-trash-fill"></i>
-                                    <span>Remove</span>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Cart Summary Section -->
-        <div class="cart-summary">
-            <div class="row g-4">
-                <!-- Coupon Section (Optional) -->
-                <div class="col-lg-5">
-                    <div class="coupon-section">
-                        <h6 class="summary-title">
-                            <i class="bi bi-ticket-perforated-fill"></i> Apply Coupon
-                        </h6>
-                        <div class="input-group">
-                            <input type="text" class="coupon-input" placeholder="Enter coupon code">
-                            <button class="apply-coupon-btn" id="applyCouponBtn">Apply</button>
-                        </div>
-                        <div class="coupon-message" id="couponMessage" style="display: none;"></div>
-                    </div>
-                </div>
-
-                <!-- Order Summary -->
-                <div class="col-lg-7">
-                    <div class="order-summary">
-                        <h6 class="summary-title">
-                            <i class="bi bi-receipt"></i> Order Summary
-                        </h6>
-                        
-                        <div class="summary-details">
-                            <div class="summary-row">
-                                <span>Subtotal ({{ cart_items|length }} items)</span>
-                                <span>₹{{ total }}</span>
-                            </div>
-                            <div class="summary-row">
-                                <span>Shipping</span>
-                                <span class="shipping-cost">Free</span>
-                            </div>
-                            <div class="summary-row discount-row" id="discountRow" style="display: none;">
-                                <span>Discount</span>
-                                <span class="discount-amount">-₹0</span>
-                            </div>
-                            <div class="summary-row total-row">
-                                <strong>Total Amount</strong>
-                                <strong class="grand-total">₹{{ total }}</strong>
-                            </div>
-                        </div>
-                        
-                        <div class="summary-actions">
-                            <a href="/" class="btn continue-shopping-btn">
-                                <i class="bi bi-arrow-left"></i> Continue Shopping
-                            </a>
-                            <a href="/orders/checkout/" class="btn checkout-btn">
-                                Proceed to Checkout <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recommended Books Section -->
-        <div class="recommended-section mt-5 pt-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="section-title">
-                    <i class="bi bi-stars"></i> You Might Also Like
-                </h5>
-                <a href="/" class="view-all-link">View All →</a>
-            </div>
-            <div class="row g-4">
-                {% for book in recommended_books %}
-                <div class="col-md-6 col-lg-3">
-                    <div class="recommended-card">
-                        <a href="{% url 'book_detail' book.id %}" class="text-decoration-none">
-                            <div class="recommended-image">
-                                {% if book.image %}
-                                    <img src="{{ book.image.url }}" alt="{{ book.title }}">
-                                {% else %}
-                                    <div class="recommended-placeholder">
-                                        <i class="bi bi-book"></i>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="recommended-info">
-                                <h6 class="recommended-title">{{ book.title|truncatechars:35 }}</h6>
-                                <p class="recommended-price">₹{{ book.price }}</p>
-                                <button class="quick-add-btn" data-book-id="{{ book.id }}">
-                                    <i class="bi bi-cart-plus"></i> Quick Add
-                                </button>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="col-12">
-                    <p class="text-muted text-center">No recommendations available</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-    {% else %}
-        <!-- Empty Cart State -->
-        <div class="empty-cart">
-            <div class="empty-cart-icon">
-                <i class="bi bi-cart-x"></i>
-            </div>
-            <h3 class="empty-cart-title">Your cart is empty</h3>
-            <p class="empty-cart-message">Looks like you haven't added any books to your cart yet.</p>
-            <div class="empty-cart-actions">
-                <a href="/" class="btn shop-now-btn">
-                    <i class="bi bi-shop"></i> Start Shopping
-                </a>
-                <a href="{% url 'bestsellers' %}" class="btn browse-btn">
-                    <i class="bi bi-star-fill"></i> View Bestsellers
-                </a>
-            </div>
-            
-            <!-- Featured Categories -->
-            <div class="featured-categories mt-5">
-                <h5 class="mb-3">Popular Categories</h5>
-                <div class="d-flex flex-wrap gap-2 justify-content-center">
-                    <a href="/?category=fiction" class="category-link">Fiction</a>
-                    <a href="/?category=mystery" class="category-link">Mystery</a>
-                    <a href="/?category=science" class="category-link">Science</a>
-                    <a href="/?category=self-help" class="category-link">Self-Help</a>
-                    <a href="/?category=biography" class="category-link">Biography</a>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-</div>
-
-<!-- Remove from Cart Modal -->
-<div class="modal fade" id="removeModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-custom">
-            <div class="modal-header">
-                <h5 class="modal-title">Remove Item</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to remove this item from your cart?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a href="#" id="confirmRemoveBtn" class="btn btn-danger">Remove</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-{% block extra_js %}
-<script>
-    // Coupon functionality
-    const applyBtn = document.getElementById('applyCouponBtn');
-    if (applyBtn) {
-        applyBtn.addEventListener('click', function() {
-            const couponInput = document.querySelector('.coupon-input');
-            const couponCode = couponInput.value.trim();
-            const messageDiv = document.getElementById('couponMessage');
-            
-            if (couponCode === 'BOOK10') {
-                // Apply 10% discount
-                const total = {{ total }};
-                const discount = total * 0.1;
-                const newTotal = total - discount;
-                
-                document.querySelector('.discount-row').style.display = 'flex';
-                document.querySelector('.discount-amount').textContent = `-₹${Math.round(discount)}`;
-                document.querySelector('.grand-total').textContent = `₹${Math.round(newTotal)}`;
-                
-                messageDiv.style.display = 'block';
-                messageDiv.className = 'coupon-message success';
-                messageDiv.innerHTML = '<i class="bi bi-check-circle-fill"></i> Coupon applied successfully! You saved ₹' + Math.round(discount);
-                
-                couponInput.disabled = true;
-                applyBtn.disabled = true;
-                applyBtn.style.opacity = '0.5';
-            } else if (couponCode) {
-                messageDiv.style.display = 'block';
-                messageDiv.className = 'coupon-message error';
-                messageDiv.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i> Invalid coupon code. Try "BOOK10"';
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 3000);
-            }
-        });
-    }
-    
-    // Quantity update with animation
-    const quantityBtns = document.querySelectorAll('.quantity-btn');
-    quantityBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            const row = this.closest('.cart-item');
-            const quantityInput = row.querySelector('.quantity-input');
-            const currentValue = parseInt(quantityInput.value);
-            
-            if (this.classList.contains('decrease-btn') && currentValue > 1) {
-                quantityInput.value = currentValue - 1;
-                animateValue(quantityInput, 'decrease');
-            } else if (this.classList.contains('increase-btn')) {
-                quantityInput.value = currentValue + 1;
-                animateValue(quantityInput, 'increase');
-            }
-        });
-    });
-    
-    function animateValue(element, type) {
-        element.classList.add('updating');
-        setTimeout(() => {
-            element.classList.remove('updating');
-        }, 200);
-    }
-    
-    // Quick add to cart for recommendations
-    const quickAddBtns = document.querySelectorAll('.quick-add-btn');
-    quickAddBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const bookId = this.getAttribute('data-book-id');
-            // Add AJAX call to add to cart
-            showNotification('Book added to cart!');
-            this.innerHTML = '<i class="bi bi-check-lg"></i> Added';
-            setTimeout(() => {
-                this.innerHTML = '<i class="bi bi-cart-plus"></i> Quick Add';
-            }, 2000);
-        });
-    });
-    
-    function showNotification(message) {
-        // Simple notification (you can implement a toast)
-        const notification = document.createElement('div');
-        notification.className = 'notification-toast';
-        notification.innerHTML = `
-            <i class="bi bi-check-circle-fill"></i>
-            <span>${message}</span>
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 100);
-        
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, 3000);
-    }
-</script>
-{% endblock %}
-
+<h2 class="mb-4">Your Cart</h2>
+{% if cart_items %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Book</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart_items %}
+        <tr>
+            <td>{{ item.book.title }}</td>
+            <td>₹{{ item.book.price }}</td>
+            <td>
+                <a href="{% url 'decrease_quantity' item.id %}" class="btn btn-sm btn-outline-secondary">-</a>
+                {{ item.quantity }}
+                <a href="{% url 'increase_quantity' item.id %}" class="btn btn-sm btn-outline-secondary">+</a>
+            </td>
+            <td>₹{{ item.total }}</td>
+            <td><a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm">Remove</a></td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="3" class="text-end fw-bold">Total:</td>
+            <td colspan="2" class="fw-bold">₹{{ total }}</td>
+        </tr>
+    </tbody>
+</table>
+<a href="{% url 'checkout' %}" class="btn btn-custom">Proceed to Checkout</a>
+{% else %}
+<p>Your cart is empty.</p>
+{% endif %}
 {% endblock %}

@@ -1,129 +1,25 @@
-/* ===== MINIMAL DARK THEME ===== */
-
-body.dark-body{
-background:#121417;
-font-family:'Poppins',sans-serif;
-color:#f1f1f1;
+/* Ensure all book cards are same height */
+.card-hover {
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-/* ---------- NAVBAR ---------- */
-.custom-navbar{
-background:#0f1114;
-border-bottom:1px solid #2a2f36;
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
-.custom-navbar .nav-link{
-color:#c9d1d9;
+/* Make all images same size and centered */
+.book-img {
+    height: 250px;          /* fixed height */
+    object-fit: cover;      /* crop and fill nicely */
+    width: 100%;            /* full width */
+    border-bottom: 1px solid #dee2e6;
 }
 
-.custom-navbar .nav-link:hover
-
-/* ---------- SEARCH ---------- */
-.search-input{
-background:#1c2128;
-border:1px solid #2a2f36;
-color:white;
-}
-
-.search-input::placeholder{
-color:#8b949e;
-}
-
-.search-btn{
-background:#3b82f6;
-border:none;
-color:white;
-}
-
-.search-btn:hover
-
-/* ---------- BUTTONS ---------- */
-.login-btn{
-border:1px solid #3b82f6;
-color:#3b82f6;
-}
-
-.login-btn:hover{
-background:#3b82f6;
-color:white;
-}
-
-.signup-btn{
-background:#3b82f6;
-color:white;
-}
-
-.signup-btn:hover
-
-/* ---------- CARDS ---------- */
-.card{
-background:#1c2128;
-border:1px solid #2a2f36;
-}
-
-.card-img-top{
-height:240px;
-object-fit:cover;
-}
-
-.card-title{
-font-weight:600;
-}
-
-.book-price{
-font-weight:600;
-}
-
-/* ---------- TABLE ---------- */
-.table{
-background:#1c2128;
-color:white;
-}
-
-.table th{
-background:#0f1114;
-}
-
-/* ---------- FORM ---------- */
-.form-control,
-.form-select{
-background:#1c2128;
-border:1px solid #2a2f36;
-color:white;
-}
-
-.form-control:focus{
-border-color:#3b82f6;
-box-shadow:none;
-}
-
-/* ---------- ALERT ---------- */
-.alert{
-border:none;
-}
-
-/* ---------- PROFILE ---------- */
-.profile-header{
-background:#1c2128;
-padding:25px;
-}
-
-.profile-avatar{
-width:100px;
-height:100px;
-border-radius:50%;
-background:#3b82f6;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:35px;
-}
-
-/* ---------- RESPONSIVE ---------- */
-@media(max-width:768px){
-
-.card-img-top{
-height:200px;
-}
-
+/* Buttons alignment inside cards */
+.card-body .btn {
+    width: 48%;             /* equal width buttons */
 }

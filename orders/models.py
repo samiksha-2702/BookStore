@@ -13,12 +13,14 @@ class Order(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return f"Order #{self.id} by {self.user.username}"
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')  # ✅ related_name added
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     price = models.FloatField()

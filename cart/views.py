@@ -44,14 +44,14 @@ def add_to_cart(request, book_id):
 
 # ❌ Remove Item
 def remove_from_cart(request, item_id):
-    item = CartItem.objects.get(id=item_id)
+    item = CartItem.objects.get(id=item_id, user=request.user)
     item.delete()
     return redirect('view_cart')
 
 
 # ➕ Increase Quantity
 def increase_quantity(request, item_id):
-    item = CartItem.objects.get(id=item_id)
+    item = CartItem.objects.get(id=item_id, user=request.user)
     item.quantity += 1
     item.save()
     return redirect('view_cart')
@@ -59,7 +59,7 @@ def increase_quantity(request, item_id):
 
 # ➖ Decrease Quantity
 def decrease_quantity(request, item_id):
-    item = CartItem.objects.get(id=item_id)
+    item = CartItem.objects.get(id=item_id, user=request.user)
 
     if item.quantity > 1:
         item.quantity -= 1
