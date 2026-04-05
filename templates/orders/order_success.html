@@ -39,7 +39,7 @@
                                     <td>{{ item.book.title }}</td>
                                     <td>{{ item.quantity }}</td>
                                     <td>{{ item.price }}</td>
-                                    <td>{{ item.price|floatformat:2|mul:item.quantity }}</td>
+                                    <td>{{ item.total_price }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

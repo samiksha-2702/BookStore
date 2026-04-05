@@ -125,7 +125,7 @@ def payment_verify(request):
 def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    # Pre-calculate total price per item
+    # Add total_price to each item so template doesn't need 'mul'
     for item in order.items.all():
         item.total_price = item.price * item.quantity
 
@@ -134,7 +134,7 @@ def order_success(request, order_id):
 @login_required
 def order_history(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, "orders/history.html", {"orders": orders})
+    return render(request, "orders/order_history.html", {"orders": orders})
 
 
 @login_required
