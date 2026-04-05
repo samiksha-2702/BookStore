@@ -1,43 +1,1047 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Checkout</h2>
+
+<div class="checkout-container">
+    <!-- Page Header -->
+    <div class="checkout-header">
+        <div class="header-breadcrumb">
+            <a href="/" class="breadcrumb-link">Home</a>
+            <i class="bi bi-chevron-right"></i>
+            <a href="/cart/" class="breadcrumb-link">Cart</a>
+            <i class="bi bi-chevron-right"></i>
+            <span class="breadcrumb-current">Checkout</span>
+        </div>
+        <h1 class="checkout-title">
+            <i class="bi bi-credit-card-fill"></i>
+            Checkout
+        </h1>
+        <p class="checkout-subtitle">Complete your purchase securely</p>
+    </div>
 
     {% if cart_items %}
-    <table class="table table-bordered mt-3">
-        <thead>
-            <tr>
-                <th>Book</th>
-                <th>Quantity</th>
-                <th>Price (₹)</th>
-                <th>Total (₹)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in cart_items %}
-            <tr>
-                <td>{{ item.book.title }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>₹{{ item.book.price }}</td>
-                <td>₹{{ item.total_price }}</td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td colspan="3" class="text-end"><strong>Total Amount:</strong></td>
-                <td><strong>₹{{ total_amount }}</strong></td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="checkout-grid">
+        <!-- Order Summary Section -->
+        <div class="order-summary-section">
+            <div class="section-header">
+                <i class="bi bi-bag-check-fill"></i>
+                <h3>Order Summary</h3>
+                <span class="item-count">{{ cart_items|length }} item(s)</span>
+            </div>
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-success">Proceed to Payment</button>
-    </form>
+            <div class="order-items">
+                {% for item in cart_items %}
+                <div class="order-item">
+                    <div class="item-image">
+                        {% if item.book.image %}
+                            <img src="{{ item.book.image.url }}" alt="{{ item.book.title }}">
+                        {% else %}
+                            <div class="no-image">
+                                <i class="bi bi-book"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="item-details">
+                        <h4 class="item-title">{{ item.book.title }}</h4>
+                        <p class="item-author">{{ item.book.author|default:"Unknown Author" }}</p>
+                        <div class="item-meta">
+                            <span class="item-quantity">Qty: {{ item.quantity }}</span>
+                            <span class="item-price">₹{{ item.book.price }}</span>
+                        </div>
+                    </div>
+                    <div class="item-total">
+                        <span class="total-label">Total</span>
+                        <span class="total-amount">₹{% widthratio item.book.price 1 item.quantity %}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
 
+            <!-- Price Breakdown -->
+            <div class="price-breakdown">
+                <div class="breakdown-row">
+                    <span>Subtotal</span>
+                    <span>₹{{ total_amount }}</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Shipping</span>
+                    <span class="shipping-free">Free</span>
+                </div>
+                <div class="breakdown-row discount-row" id="discountRow" style="display: none;">
+                    <span>Discount</span>
+                    <span class="discount-amount">-₹0</span>
+                </div>
+                <div class="breakdown-row total-row">
+                    <span>Total Amount</span>
+                    <span class="grand-total">₹{{ total_amount }}</span>
+                </div>
+            </div>
+
+            <!-- Coupon Code Section -->
+            <div class="coupon-section">
+                <div class="coupon-header">
+                    <i class="bi bi-ticket-perforated"></i>
+                    <span>Have a coupon code?</span>
+                </div>
+                <div class="coupon-input-group">
+                    <input type="text" id="couponCode" class="coupon-input" placeholder="Enter coupon code">
+                    <button type="button" id="applyCouponBtn" class="apply-coupon-btn">Apply</button>
+                </div>
+                <div id="couponMessage" class="coupon-message" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Payment & Billing Section -->
+        <div class="payment-section">
+            <div class="section-header">
+                <i class="bi bi-shield-lock-fill"></i>
+                <h3>Payment Information</h3>
+            </div>
+
+            <form method="POST" id="checkoutForm">
+                {% csrf_token %}
+                
+                <!-- Billing Details -->
+                <div class="form-group">
+                    <label for="fullName" class="form-label">
+                        <i class="bi bi-person-fill"></i> Full Name
+                    </label>
+                    <input type="text" 
+                           id="fullName" 
+                           name="full_name" 
+                           class="form-input" 
+                           placeholder="Enter your full name"
+                           value="{{ user.get_full_name|default:user.username }}"
+                           required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            <i class="bi bi-envelope-fill"></i> Email Address
+                        </label>
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               class="form-input" 
+                               placeholder="your@email.com"
+                               value="{{ user.email }}"
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone" class="form-label">
+                            <i class="bi bi-telephone-fill"></i> Phone Number
+                        </label>
+                        <input type="tel" 
+                               id="phone" 
+                               name="phone" 
+                               class="form-input" 
+                               placeholder="Enter phone number"
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address" class="form-label">
+                        <i class="bi bi-geo-alt-fill"></i> Delivery Address
+                    </label>
+                    <textarea id="address" 
+                              name="address" 
+                              class="form-input" 
+                              rows="3" 
+                              placeholder="Enter your complete delivery address"
+                              required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city" class="form-label">City</label>
+                        <input type="text" 
+                               id="city" 
+                               name="city" 
+                               class="form-input" 
+                               placeholder="City"
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pincode" class="form-label">Pin Code</label>
+                        <input type="text" 
+                               id="pincode" 
+                               name="pincode" 
+                               class="form-input" 
+                               placeholder="Pin code"
+                               required>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="payment-methods">
+                    <label class="section-subtitle">Select Payment Method</label>
+                    
+                    <div class="payment-option">
+                        <input type="radio" id="card" name="payment_method" value="card" checked>
+                        <label for="card" class="payment-label">
+                            <i class="bi bi-credit-card-fill"></i>
+                            <div class="payment-info">
+                                <span class="payment-title">Credit/Debit Card</span>
+                                <span class="payment-desc">Pay securely with your card</span>
+                            </div>
+                            <div class="card-icons">
+                                <i class="bi bi-visa"></i>
+                                <i class="bi bi-mastercard"></i>
+                                <i class="bi bi-amex"></i>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="payment-option">
+                        <input type="radio" id="upi" name="payment_method" value="upi">
+                        <label for="upi" class="payment-label">
+                            <i class="bi bi-phone-fill"></i>
+                            <div class="payment-info">
+                                <span class="payment-title">UPI / Mobile Wallet</span>
+                                <span class="payment-desc">Google Pay, PhonePe, Paytm</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="payment-option">
+                        <input type="radio" id="cod" name="payment_method" value="cod">
+                        <label for="cod" class="payment-label">
+                            <i class="bi bi-cash-stack"></i>
+                            <div class="payment-info">
+                                <span class="payment-title">Cash on Delivery</span>
+                                <span class="payment-desc">Pay when you receive</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Terms & Conditions -->
+                <div class="terms-section">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="termsCheckbox" required>
+                        <span class="checkmark"></span>
+                        I agree to the 
+                        <a href="/terms/" class="terms-link">Terms of Service</a> 
+                        and 
+                        <a href="/privacy/" class="terms-link">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="checkout-actions">
+                    <a href="/cart/" class="btn-back-cart">
+                        <i class="bi bi-arrow-left"></i> Back to Cart
+                    </a>
+                    <button type="submit" class="btn-place-order" id="placeOrderBtn">
+                        <i class="bi bi-lock-fill"></i>
+                        Place Order • ₹<span id="finalTotal">{{ total_amount }}</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     {% else %}
-    <p>Your cart is empty.</p>
-    <a href="/" class="btn btn-primary">Continue Shopping</a>
+    <!-- Empty Cart State -->
+    <div class="empty-checkout">
+        <div class="empty-icon">
+            <i class="bi bi-cart-x"></i>
+        </div>
+        <h3>Your cart is empty</h3>
+        <p>Looks like you haven't added any books to your cart yet.</p>
+        <div class="empty-actions">
+            <a href="/" class="btn-shop-now">
+                <i class="bi bi-shop"></i> Continue Shopping
+            </a>
+            <a href="/bestsellers/" class="btn-bestsellers">
+                <i class="bi bi-star-fill"></i> View Bestsellers
+            </a>
+        </div>
+    </div>
     {% endif %}
 </div>
+
+<script>
+    // Coupon functionality
+    const applyBtn = document.getElementById('applyCouponBtn');
+    const couponInput = document.getElementById('couponCode');
+    const couponMessage = document.getElementById('couponMessage');
+    const discountRow = document.getElementById('discountRow');
+    const discountAmount = document.querySelector('.discount-amount');
+    const grandTotal = document.querySelector('.grand-total');
+    const finalTotalSpan = document.getElementById('finalTotal');
+    
+    let originalTotal = {{ total_amount }};
+    let currentTotal = originalTotal;
+    
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function() {
+            const couponCode = couponInput.value.trim().toUpperCase();
+            
+            // Define coupon codes
+            const coupons = {
+                'BOOK10': { discount: 10, message: '10% discount applied!' },
+                'BOOK20': { discount: 20, message: '20% discount applied!' },
+                'WELCOME': { discount: 15, message: 'Welcome discount applied!' },
+                'SAVE50': { discount: 50, message: '₹50 off applied!', type: 'fixed' }
+            };
+            
+            if (coupons[couponCode]) {
+                let discount = 0;
+                let discountText = '';
+                
+                if (coupons[couponCode].type === 'fixed') {
+                    discount = coupons[couponCode].discount;
+                    discountText = `₹${discount}`;
+                } else {
+                    discount = (originalTotal * coupons[couponCode].discount) / 100;
+                    discountText = `${coupons[couponCode].discount}%`;
+                }
+                
+                currentTotal = originalTotal - discount;
+                
+                discountRow.style.display = 'flex';
+                discountAmount.textContent = `-₹${Math.round(discount)}`;
+                grandTotal.textContent = `₹${Math.round(currentTotal)}`;
+                finalTotalSpan.textContent = Math.round(currentTotal);
+                
+                couponMessage.style.display = 'block';
+                couponMessage.className = 'coupon-message success';
+                couponMessage.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${coupons[couponCode].message}`;
+                
+                couponInput.disabled = true;
+                applyBtn.disabled = true;
+                applyBtn.style.opacity = '0.5';
+                applyBtn.style.cursor = 'not-allowed';
+            } else if (couponCode) {
+                couponMessage.style.display = 'block';
+                couponMessage.className = 'coupon-message error';
+                couponMessage.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i> Invalid coupon code. Try: BOOK10, BOOK20, WELCOME, or SAVE50';
+                
+                setTimeout(() => {
+                    couponMessage.style.display = 'none';
+                }, 3000);
+            }
+        });
+    }
+    
+    // Form validation
+    const checkoutForm = document.getElementById('checkoutForm');
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function(e) {
+            const terms = document.getElementById('termsCheckbox');
+            const phone = document.getElementById('phone');
+            const pincode = document.getElementById('pincode');
+            const address = document.getElementById('address');
+            
+            let hasError = false;
+            
+            // Phone validation (10 digits)
+            const phoneRegex = /^[0-9]{10}$/;
+            if (!phoneRegex.test(phone.value)) {
+                alert('Please enter a valid 10-digit phone number');
+                hasError = true;
+            }
+            
+            // Pincode validation (6 digits)
+            const pincodeRegex = /^[0-9]{6}$/;
+            if (!pincodeRegex.test(pincode.value)) {
+                alert('Please enter a valid 6-digit pin code');
+                hasError = true;
+            }
+            
+            // Address validation
+            if (address.value.trim().length < 10) {
+                alert('Please enter a complete delivery address');
+                hasError = true;
+            }
+            
+            // Terms validation
+            if (!terms.checked) {
+                alert('Please agree to the Terms of Service and Privacy Policy');
+                hasError = true;
+            }
+            
+            if (hasError) {
+                e.preventDefault();
+            } else {
+                // Show loading state
+                placeOrderBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
+                placeOrderBtn.disabled = true;
+            }
+        });
+    }
+    
+    // Auto-detect location (optional)
+    const pincodeInput = document.getElementById('pincode');
+    if (pincodeInput) {
+        pincodeInput.addEventListener('blur', function() {
+            const pincode = this.value;
+            if (pincode.length === 6) {
+                // You can add API call to auto-fill city based on pincode
+                console.log('Pincode entered:', pincode);
+            }
+        });
+    }
+</script>
+
+<style>
+    /* ============================================
+       CHECKOUT PAGE STYLES
+       Add these styles to your style.css file
+       ============================================ */
+
+    .checkout-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Header Section */
+    .checkout-header {
+        margin-bottom: 40px;
+    }
+
+    .header-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .breadcrumb-link {
+        color: #b4c0d0;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-link:hover {
+        color: #e6b17e;
+    }
+
+    .breadcrumb-current {
+        color: #e6b17e;
+    }
+
+    .header-breadcrumb i {
+        color: #7e8a98;
+        font-size: 12px;
+    }
+
+    .checkout-title {
+        font-size: 36px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #e6b17e 0%, #f0c9a0 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .checkout-title i {
+        background: none;
+        -webkit-background-clip: unset;
+        background-clip: unset;
+        color: #e6b17e;
+    }
+
+    .checkout-subtitle {
+        color: #7e8a98;
+        font-size: 14px;
+    }
+
+    /* Checkout Grid */
+    .checkout-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 30px;
+    }
+
+    /* Section Common Styles */
+    .order-summary-section,
+    .payment-section {
+        background: var(--bg-card, #1a1d24);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 25px;
+        background: rgba(230, 177, 126, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .section-header i {
+        font-size: 24px;
+        color: #e6b17e;
+    }
+
+    .section-header h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #f0f3f8;
+        margin: 0;
+        flex: 1;
+    }
+
+    .item-count {
+        font-size: 12px;
+        color: #7e8a98;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+
+    /* Order Items */
+    .order-items {
+        padding: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .order-item {
+        display: flex;
+        gap: 15px;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-image {
+        width: 70px;
+        height: 90px;
+        flex-shrink: 0;
+        background: #1e2128;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .no-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #7e8a98;
+    }
+
+    .no-image i {
+        font-size: 30px;
+    }
+
+    .item-details {
+        flex: 1;
+    }
+
+    .item-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #f0f3f8;
+        margin-bottom: 4px;
+    }
+
+    .item-author {
+        font-size: 12px;
+        color: #7e8a98;
+        margin-bottom: 8px;
+    }
+
+    .item-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 12px;
+    }
+
+    .item-quantity {
+        color: #b4c0d0;
+    }
+
+    .item-price {
+        color: #e6b17e;
+        font-weight: 500;
+    }
+
+    .item-total {
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .total-label {
+        font-size: 11px;
+        color: #7e8a98;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .total-amount {
+        font-size: 16px;
+        font-weight: 700;
+        color: #e6b17e;
+    }
+
+    /* Price Breakdown */
+    .price-breakdown {
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.2);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .breakdown-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        color: #b4c0d0;
+        font-size: 14px;
+    }
+
+    .shipping-free {
+        color: #2e7d64;
+        font-weight: 500;
+    }
+
+    .discount-row {
+        color: #ff6b6b;
+    }
+
+    .total-row {
+        padding-top: 15px;
+        margin-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .total-row span:first-child {
+        color: #f0f3f8;
+    }
+
+    .grand-total {
+        color: #e6b17e;
+    }
+
+    /* Coupon Section */
+    .coupon-section {
+        padding: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .coupon-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: #b4c0d0;
+        font-size: 13px;
+    }
+
+    .coupon-header i {
+        color: #e6b17e;
+    }
+
+    .coupon-input-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .coupon-input {
+        flex: 1;
+        background: #1e2128;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #f0f3f8;
+        padding: 10px 15px;
+        border-radius: 10px;
+        font-size: 13px;
+    }
+
+    .coupon-input:focus {
+        outline: none;
+        border-color: #e6b17e;
+    }
+
+    .apply-coupon-btn {
+        background: linear-gradient(135deg, #e6b17e 0%, #c98f5c 100%);
+        border: none;
+        color: #0a0c10;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .apply-coupon-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+    }
+
+    .coupon-message {
+        margin-top: 10px;
+        font-size: 12px;
+        padding: 8px 12px;
+        border-radius: 8px;
+    }
+
+    .coupon-message.success {
+        background: rgba(46, 125, 100, 0.2);
+        color: #8bcbae;
+    }
+
+    .coupon-message.error {
+        background: rgba(179, 78, 94, 0.2);
+        color: #ff8f9f;
+    }
+
+    /* Payment Form */
+    .payment-section .section-header {
+        background: rgba(230, 177, 126, 0.05);
+    }
+
+    form {
+        padding: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #f0f3f8;
+        font-weight: 500;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+
+    .form-label i {
+        color: #e6b17e;
+        font-size: 14px;
+    }
+
+    .form-input {
+        width: 100%;
+        background: #1e2128;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #f0f3f8;
+        padding: 12px 15px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #e6b17e;
+    }
+
+    .form-input::placeholder {
+        color: #7e8a98;
+    }
+
+    textarea.form-input {
+        resize: vertical;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    /* Payment Methods */
+    .payment-methods {
+        margin: 25px 0;
+    }
+
+    .section-subtitle {
+        display: block;
+        color: #f0f3f8;
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    .payment-option {
+        margin-bottom: 12px;
+    }
+
+    .payment-option input[type="radio"] {
+        display: none;
+    }
+
+    .payment-label {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: #1e2128;
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .payment-option input[type="radio"]:checked + .payment-label {
+        border-color: #e6b17e;
+        background: rgba(230, 177, 126, 0.05);
+    }
+
+    .payment-label i {
+        font-size: 24px;
+        color: #e6b17e;
+    }
+
+    .payment-info {
+        flex: 1;
+    }
+
+    .payment-title {
+        display: block;
+        color: #f0f3f8;
+        font-weight: 500;
+        font-size: 14px;
+        margin-bottom: 2px;
+    }
+
+    .payment-desc {
+        font-size: 11px;
+        color: #7e8a98;
+    }
+
+    .card-icons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .card-icons i {
+        font-size: 20px;
+        color: #7e8a98;
+    }
+
+    /* Terms Section */
+    .terms-section {
+        margin: 20px 0;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        color: #b4c0d0;
+        font-size: 13px;
+    }
+
+    .checkbox-label input {
+        display: none;
+    }
+
+    .checkmark {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        background: #1e2128;
+        display: inline-block;
+        position: relative;
+        transition: all 0.2s;
+    }
+
+    .checkbox-label input:checked + .checkmark {
+        background: #e6b17e;
+        border-color: #e6b17e;
+    }
+
+    .checkbox-label input:checked + .checkmark::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #0a0c10;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .terms-link {
+        color: #e6b17e;
+        text-decoration: none;
+    }
+
+    .terms-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Action Buttons */
+    .checkout-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    .btn-back-cart {
+        flex: 1;
+        background: #1e2128;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #b4c0d0;
+        text-decoration: none;
+        text-align: center;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .btn-back-cart:hover {
+        background: rgba(230, 177, 126, 0.1);
+        border-color: #e6b17e;
+        color: #e6b17e;
+    }
+
+    .btn-place-order {
+        flex: 2;
+        background: linear-gradient(135deg, #e6b17e 0%, #c98f5c 100%);
+        border: none;
+        color: #0a0c10;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-place-order:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(230, 177, 126, 0.3);
+    }
+
+    .btn-place-order:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Empty State */
+    .empty-checkout {
+        text-align: center;
+        padding: 80px 20px;
+        background: var(--bg-card, #1a1d24);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .empty-icon i {
+        font-size: 80px;
+        color: #7e8a98;
+        margin-bottom: 20px;
+    }
+
+    .empty-checkout h3 {
+        font-size: 24px;
+        color: #f0f3f8;
+        margin-bottom: 10px;
+    }
+
+    .empty-checkout p {
+        color: #7e8a98;
+        margin-bottom: 30px;
+    }
+
+    .empty-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .btn-shop-now, .btn-bestsellers {
+        padding: 12px 24px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .btn-shop-now {
+        background: linear-gradient(135deg, #e6b17e 0%, #c98f5c 100%);
+        color: #0a0c10;
+    }
+
+    .btn-bestsellers {
+        background: #1e2128;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #b4c0d0;
+    }
+
+    .btn-shop-now:hover, .btn-bestsellers:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 968px) {
+        .checkout-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .checkout-title {
+            font-size: 28px;
+        }
+        
+        .order-item {
+            flex-direction: column;
+        }
+        
+        .item-total {
+            text-align: left;
+        }
+        
+        .checkout-actions {
+            flex-direction: column;
+        }
+        
+        .empty-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-shop-now, .btn-bestsellers {
+            width: 100%;
+            max-width: 250px;
+        }
+    }
+</style>
+
 {% endblock %}
