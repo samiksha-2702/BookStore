@@ -26,19 +26,6 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/style.css" />
 
-    <style>
-      main {
-        padding-top: 85px;
-        min-height: calc(100vh - 400px);
-      }
-
-      @media (max-width: 768px) {
-        main {
-          padding-top: 75px;
-        }
-      }
-    </style>
-
     {% block extra_css %}{% endblock %}
   </head>
   <body>
@@ -82,11 +69,11 @@
                 <i class="fa-solid fa-bag-shopping"></i>
                 Cart
                 {% if request.user.is_authenticated %}
-                  {% with cart=request.user.cart_set.first %}
-                    {% if cart and cart.items.count %}
-                      <span class="cart-badge">{{ cart.items.count }}</span>
-                    {% endif %}
-                  {% endwith %}
+                    {% with cart=request.user.cart_set.first %}
+                        {% if cart and cart.items.count %}
+                            <span class="cart-badge">{{ cart.items.count }}</span>
+                        {% endif %}
+                    {% endwith %}
                 {% endif %}
               </a>
             </li>
@@ -121,6 +108,16 @@
                 <li>
                   <a class="dropdown-item" href="{% url 'profile' %}">
                     <i class="fa-regular fa-user me-2"></i>My Profile
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'order_history' %}">
+                    <i class="fa-regular fa-clock me-2"></i>Order History
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'order_history' %}">
+                    <i class="fa-regular fa-truck me-2"></i>Track Order
                   </a>
                 </li>
                 <li>
@@ -165,7 +162,8 @@
           <div class="col-md-4 mb-4">
             <h5 style="color: var(--accent)" class="mb-3">BookStore</h5>
             <p style="color: var(--text-secondary); font-size: 0.9rem">
-              Discover your next great read from our curated collection of premium books.
+              Discover your next great read from our curated collection of
+              premium books.
             </p>
           </div>
           <div class="col-md-2 mb-4">

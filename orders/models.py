@@ -5,10 +5,13 @@ from django.utils import timezone
 
 class Order(models.Model):
     STATUS_CHOICES = (
-        ('Pending', 'Pending'),
-        ('Completed', 'Completed'),
-        ('Cancelled', 'Cancelled'),
+        ('Pending', 'Pending'),          # Order placed but not processed
+        ('Processing', 'Processing'),    # Being prepared
+        ('Shipped', 'Shipped'),          # Dispatched
+        ('Completed', 'Completed'),      # Delivered
+        ('Cancelled', 'Cancelled'),      # Cancelled
     )
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')

@@ -8,4 +8,5 @@ urlpatterns = [
     path('success/<int:order_id>/', views.order_success, name='order_success'),
     path('history/', views.order_history, name='order_history'),
     path('invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
+    path('track/<int:order_id>/', views.track_order, name='track_order'),
 ]

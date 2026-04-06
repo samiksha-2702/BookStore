@@ -153,3 +153,17 @@ def download_invoice(request, order_id):
     if pisa_status.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
+
+@login_required
+def track_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    stages = ['Pending', 'Processing', 'Shipped', 'Completed']
+
+    # Calculate current stage index
+    current_stage_index = stages.index(order.status) if order.status in stages else 0
+
+    return render(request, 'orders/track_order.html', {
+        'order': order,
+        'stages': stages,
+        'current_stage_index': current_stage_index
+    })

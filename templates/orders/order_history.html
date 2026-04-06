@@ -41,6 +41,10 @@
                                 <a href="{% url 'download_invoice' order.id %}" class="btn-invoice">
                                     <i class="fa-regular fa-file-pdf"></i>
                                 </a>
+                                </a>
+    <a href="{% url 'track_order' order.id %}" class="btn btn-sm btn-info">
+        Track
+    </a>
                             </td>
                         </tr>
                         {% endfor %}
