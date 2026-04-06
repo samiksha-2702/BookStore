@@ -1,61 +1,207 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">Edit Profile</h2>
-
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-success">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-
-    <form method="POST">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                {{ user_form.first_name.label_tag }}
-                {{ user_form.first_name }}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="profile-header mb-4">
+                <h2 class="section-title mb-2">Edit Profile</h2>
+                <p class="text-secondary">Update your account information</p>
             </div>
-            <div class="col-md-6 mb-3">
-                {{ user_form.last_name.label_tag }}
-                {{ user_form.last_name }}
-            </div>
-            <div class="col-md-12 mb-3">
-                {{ user_form.email.label_tag }}
-                {{ user_form.email }}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success">
+                        <i class="fa-regular fa-circle-check me-2"></i>{{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="edit-card">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fa-regular fa-user me-1"></i>First Name
+                            </label>
+                            {{ user_form.first_name }}
+                            {% if user_form.first_name.errors %}
+                                <small class="text-danger">{{ user_form.first_name.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fa-regular fa-user me-1"></i>Last Name
+                            </label>
+                            {{ user_form.last_name }}
+                            {% if user_form.last_name.errors %}
+                                <small class="text-danger">{{ user_form.last_name.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">
+                                <i class="fa-regular fa-envelope me-1"></i>Email Address
+                            </label>
+                            {{ user_form.email }}
+                            {% if user_form.email.errors %}
+                                <small class="text-danger">{{ user_form.email.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fa-regular fa-phone me-1"></i>Phone Number
+                            </label>
+                            {{ profile_form.phone }}
+                            {% if profile_form.phone.errors %}
+                                <small class="text-danger">{{ profile_form.phone.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fa-regular fa-location-dot me-1"></i>Pincode
+                            </label>
+                            {{ profile_form.pincode }}
+                            {% if profile_form.pincode.errors %}
+                                <small class="text-danger">{{ profile_form.pincode.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">
+                                <i class="fa-regular fa-location-dot me-1"></i>Address Line 1
+                            </label>
+                            {{ profile_form.address_line1 }}
+                            {% if profile_form.address_line1.errors %}
+                                <small class="text-danger">{{ profile_form.address_line1.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">
+                                <i class="fa-regular fa-location-dot me-1"></i>Address Line 2
+                            </label>
+                            {{ profile_form.address_line2 }}
+                            {% if profile_form.address_line2.errors %}
+                                <small class="text-danger">{{ profile_form.address_line2.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fa-regular fa-city me-1"></i>City
+                            </label>
+                            {{ profile_form.city }}
+                            {% if profile_form.city.errors %}
+                                <small class="text-danger">{{ profile_form.city.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fa-regular fa-map me-1"></i>State
+                            </label>
+                            {{ profile_form.state }}
+                            {% if profile_form.state.errors %}
+                                <small class="text-danger">{{ profile_form.state.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-actions mt-3">
+                        <button type="submit" class="btn btn-premium">
+                            <i class="fa-regular fa-floppy-disk me-2"></i>Save Changes
+                        </button>
+                        <a href="{% url 'profile' %}" class="btn btn-outline-premium ms-2">
+                            <i class="fa-regular fa-arrow-left me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                {{ profile_form.phone.label_tag }}
-                {{ profile_form.phone }}
-            </div>
-            <div class="col-md-6 mb-3">
-                {{ profile_form.pincode.label_tag }}
-                {{ profile_form.pincode }}
-            </div>
-            <div class="col-md-12 mb-3">
-                {{ profile_form.address_line1.label_tag }}
-                {{ profile_form.address_line1 }}
-            </div>
-            <div class="col-md-12 mb-3">
-                {{ profile_form.address_line2.label_tag }}
-                {{ profile_form.address_line2 }}
-            </div>
-            <div class="col-md-6 mb-3">
-                {{ profile_form.city.label_tag }}
-                {{ profile_form.city }}
-            </div>
-            <div class="col-md-6 mb-3">
-                {{ profile_form.state.label_tag }}
-                {{ profile_form.state }}
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-success">Save Changes</button>
-        <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+    </div>
 </div>
+
+<style>
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 2px;
+    }
+    
+    .edit-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .form-label i {
+        color: var(--accent);
+        font-size: 0.8rem;
+    }
+    
+    .form-actions {
+        border-top: 1px solid var(--border-light);
+        padding-top: 1.5rem;
+        text-align: center;
+    }
+    
+    /* Your existing form-control from common CSS is already applied */
+    .alert {
+        margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .edit-card {
+            padding: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .form-actions .btn {
+            margin-left: 0 !important;
+        }
+    }
+</style>
 {% endblock %}

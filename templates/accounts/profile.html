@@ -1,23 +1,211 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">My Profile</h2>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="profile-header mb-4">
+                <h2 class="section-title mb-2">My Profile</h2>
+                <p class="text-secondary">Manage your account information</p>
+            </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title">{{ user.username }}</h5>
-            <p><strong>First Name:</strong> {{ user.first_name }}</p>
-            <p><strong>Last Name:</strong> {{ user.last_name }}</p>
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p><strong>Phone:</strong> {{ profile.phone }}</p>
-            <p><strong>Address:</strong> {{ profile.address_line1 }}, {{ profile.address_line2 }}</p>
-            <p><strong>City:</strong> {{ profile.city }}</p>
-            <p><strong>State:</strong> {{ profile.state }}</p>
-            <p><strong>Pincode:</strong> {{ profile.pincode }}</p>
-
-            <a href="{% url 'edit_profile' %}" class="btn btn-primary mt-3">Edit Profile</a>
+            <div class="profile-card">
+                <div class="profile-avatar mb-4">
+                    <div class="avatar-circle">
+                        <i class="fa-regular fa-user fa-2x"></i>
+                    </div>
+                    <h4 class="mb-0 mt-2">{{ user.username }}</h4>
+                </div>
+                
+                <div class="profile-info">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label class="info-label">First Name</label>
+                                <p class="info-value">{{ user.first_name|default:"Not set" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label class="info-label">Last Name</label>
+                                <p class="info-value">{{ user.last_name|default:"Not set" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label class="info-label">Email Address</label>
+                                <p class="info-value">{{ user.email|default:"Not set" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label class="info-label">Phone Number</label>
+                                <p class="info-value">{{ profile.phone|default:"Not set" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="info-item">
+                                <label class="info-label">Address</label>
+                                <p class="info-value">
+                                    {% if profile.address_line1 %}
+                                        {{ profile.address_line1 }}{% if profile.address_line2 %}, {{ profile.address_line2 }}{% endif %}
+                                    {% else %}
+                                        Not set
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="info-item">
+                                <label class="info-label">City</label>
+                                <p class="info-value">{{ profile.city|default:"Not set" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="info-item">
+                                <label class="info-label">State</label>
+                                <p class="info-value">{{ profile.state|default:"Not set" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="info-item">
+                                <label class="info-label">Pincode</label>
+                                <p class="info-value">{{ profile.pincode|default:"Not set" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-actions mt-4">
+                    <a href="{% url 'edit_profile' %}" class="btn btn-premium">
+                        <i class="fa-regular fa-pen-to-square me-2"></i>Edit Profile
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 2px;
+    }
+    
+    .profile-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .profile-avatar {
+        text-align: center;
+        border-bottom: 1px solid var(--border-light);
+        padding-bottom: 1.5rem;
+    }
+    
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        background: var(--accent-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    
+    .avatar-circle i {
+        color: var(--accent);
+        font-size: 2rem;
+    }
+    
+    .profile-info {
+        padding: 1rem 0;
+    }
+    
+    .info-item {
+        margin-bottom: 1rem;
+    }
+    
+    .info-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--accent);
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        color: var(--text-primary);
+        margin-bottom: 0;
+        font-weight: 500;
+    }
+    
+    .profile-actions {
+        border-top: 1px solid var(--border-light);
+        padding-top: 1.5rem;
+        text-align: center;
+    }
+    
+    .btn-premium {
+        background: var(--accent);
+        color: #1c1c1a;
+        border: none;
+        padding: 10px 28px;
+        border-radius: 40px;
+        font-weight: 600;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .btn-premium:hover {
+        background: var(--accent-dark);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+        .profile-card {
+            padding: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+        }
+        
+        .info-value {
+            font-size: 0.9rem;
+        }
+    }
+</style>
 {% endblock %}
