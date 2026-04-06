@@ -199,27 +199,29 @@ Visit `http://127.0.0.1:8000` in your browser.
 ```
 bibliocart/
 │
+├── bookstore/
+│   └──settings.py
 ├── books/
 │   ├── models.py          # Book model (title, author, price, cover, etc.)
 │   ├── views.py           # Book listing, search, detail views
-│   ├── urls.py
-│   └── templates/books/
+│   └── urls.py
+│  
 │
 ├── cart/
 │   ├── views.py           # Add, update, remove cart items
-│   ├── context_processors.py  # Cart count available globally
-│   └── templates/cart/
+│   └── context_processors.py  # Cart count available globally
+│   
 │
 ├── orders/
 │   ├── models.py          # Order, OrderItem models with status tracking
 │   ├── views.py           # Checkout, order history, order detail, tracking
-│   ├── urls.py
-│   └── templates/orders/
+│   └── urls.py
+│   
 │
 ├── users/
 │   ├── views.py           # Register, login, logout
-│   ├── forms.py
-│   └── templates/users/
+│   └── forms.py
+│   
 │
 ├── templates/
 │   ├── base.html                  # Shared layout, navbar, footer
