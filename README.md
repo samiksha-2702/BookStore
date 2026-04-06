@@ -222,7 +222,20 @@ bibliocart/
 │   └── templates/users/
 │
 ├── templates/
-│   └── base.html          # Shared layout, navbar, footer
+│   ├── base.html                  # Shared layout, navbar, footer
+│   ├── accounts/
+│   │   ├── login.html             # User login page
+│   │   ├── signup.html            # User registration page
+│   │   ├── profile.html           # View user profile
+│   │   └── edit_profile.html      # Edit profile details
+│   ├── cart/
+│   │   └── cart.html              # Cart items, quantities, subtotal
+│   └── orders/
+│       ├── checkout.html          # Checkout form
+│       ├── payment.html           # Razorpay payment trigger page
+│       ├── order_success.html     # Post-payment confirmation
+│       ├── order_history.html     # List of all past orders
+│       └── track_order.html       # Order status progress tracker
 │
 ├── static/
 │   ├── css/
