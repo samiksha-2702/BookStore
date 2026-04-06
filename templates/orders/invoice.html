@@ -4,37 +4,116 @@
     <meta charset="UTF-8">
     <title>Invoice #{{ order.id }}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h2 { text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #333; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .total { text-align: right; font-weight: bold; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            color: #1c1c1a;
+        }
+        h2 { 
+            text-align: center; 
+            color: #c7a252;
+            margin-bottom: 20px;
+        }
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8e6e1;
+        }
+        .invoice-info {
+            margin: 20px 0;
+            padding: 10px;
+            background: #f5f4f0;
+            border-radius: 8px;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+        }
+        th, td { 
+            border: 1px solid #d6d4cf; 
+            padding: 10px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #f5f4f0; 
+            color: #1c1c1a;
+            font-weight: 600;
+        }
+        td {
+            color: #5c5c5a;
+        }
+        .total { 
+            text-align: right; 
+            font-weight: bold; 
+        }
+        .grand-total {
+            font-weight: bold;
+            font-size: 16px;
+            color: #c7a252;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 10px;
+            border-top: 1px solid #e8e6e1;
+            font-size: 12px;
+            color: #8c8c8a;
+        }
     </style>
 </head>
 <body>
-    <h2>Invoice #{{ order.id }}</h2>
-    <p>User: {{ order.user.username }}</p>
-    <p>Date: {{ order.created_at|date:"d M Y H:i" }}</p>
+    <div class="invoice-header">
+        <h2>BOOKSTORE INVOICE</h2>
+        <p>Invoice #{{ order.id }}</p>
+    </div>
+    
+    <div class="invoice-info">
+        <p><strong>Customer:</strong> {{ order.user.username }}</p>
+        <p><strong>Email:</strong> {{ order.user.email|default:"Not provided" }}</p>
+        <p><strong>Order Date:</strong> {{ order.created_at|date:"d M Y H:i" }}</p>
+        <p><strong>Payment Status:</strong> <span style="color: #28a745;">Paid</span></p>
+    </div>
+    
     <table>
-        <tr>
-            <th>Book</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Total</th>
-        </tr>
-        {% for item in order.items.all %}
-        <tr>
-            <td>{{ item.book.title }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>₹{{ item.price }}</td>
-            <td>₹{{ item.total_price }}</td>
-        </tr>
-        {% endfor %}
-        <tr>
-            <td colspan="3" class="total">Grand Total:</td>
-            <td>₹{{ order.total_amount }}</td>
-        </tr>
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Quantity</th>
+                <th>Price (₹)</th>
+                <th>Total (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr>
+                <td>{{ item.book.title }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>₹{{ item.price }}</td>
+                <td>₹{{ item.total_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="total">Subtotal:</td>
+                <td>₹{{ order.total_amount }}</td>
+            </tr>
+            <tr>
+                <td colspan="3" class="total">Shipping:</td>
+                <td>Free</td>
+            </tr>
+            <tr>
+                <td colspan="3" class="total grand-total">Grand Total:</td>
+                <td class="grand-total">₹{{ order.total_amount }}</td>
+            </tr>
+        </tfoot>
     </table>
+    
+    <div class="footer">
+        <p>Thank you for shopping with BookStore!</p>
+        <p>support@bookstore.com | www.bookstore.com</p>
+    </div>
 </body>
 </html>

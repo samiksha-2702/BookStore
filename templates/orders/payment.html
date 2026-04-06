@@ -1,54 +1,250 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <h2 class="mb-4 text-center">Checkout</h2>
+{% load math_filters %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-7 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h2 class="checkout-title">Payment Details</h2>
+                <p class="text-muted">Complete your purchase securely</p>
+            </div>
 
             {% if cart_items %}
-            <!-- Cart Summary -->
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Order Summary</h5>
+            <div class="row g-4">
+                <!-- Order Items -->
+                <div class="col-md-7">
+                    <div class="order-items">
+                        <div class="order-items-header">
+                            <span>Items</span>
+                            <span>Total</span>
+                        </div>
+                        {% for item in cart_items %}
+                        <div class="order-item">
+                            <div>
+                                <h6 class="order-item-title">{{ item.book.title }}</h6>
+                                <div class="order-item-meta">Qty: {{ item.quantity }} × ₹{{ item.price }}</div>
+                            </div>
+                            <span class="order-item-total">₹{{ item.price|floatformat:0 }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Book</th>
-                                <th>Quantity</th>
-                                <th>Price (₹)</th>
-                                <th>Total (₹)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in cart_items %}
-                            <tr>
-                                <td>{{ item.book.title }}</td>
-                                <td>{{ item.quantity }}</td>
-                                <td>{{ item.price }}</td>
-                                <td>{{ item.price|floatformat:2|floatformat:0 }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <hr>
-                    <h5 class="text-end">Total Amount: ₹{{ total_amount }}</h5>
+
+                <!-- Order Summary -->
+                <div class="col-md-5">
+                    <div class="summary-card">
+                        <h5 class="summary-title">Summary</h5>
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span>₹{{ total_amount }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping</span>
+                            <span class="text-success">Free</span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span>₹{{ total_amount }}</span>
+                        </div>
+                        
+                        <!-- Payment Button -->
+                        <button id="pay-button" class="pay-now-btn">
+                            <i class="fa-regular fa-credit-card me-2"></i>Pay ₹{{ total_amount }}
+                        </button>
+                        <div id="payment-status" class="mt-2"></div>
+                        
+                        <a href="{% url 'view_cart' %}" class="back-link">
+                            <i class="fa-regular fa-arrow-left me-1"></i>Back to Cart
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <!-- Razorpay Payment Button -->
-            <div class="text-center">
-                <button id="pay-button" class="btn btn-success btn-lg">Pay Now</button>
-                <div id="payment-status" class="mt-3"></div>
-            </div>
             {% else %}
-            <p class="text-center">Your cart is empty.</p>
+            <div class="empty-state text-center py-5">
+                <i class="fa-regular fa-bag-shopping fa-3x mb-3" style="color: var(--text-muted);"></i>
+                <h4>Your cart is empty</h4>
+                <p class="text-muted">Add some books to your cart before checking out.</p>
+                <a href="{% url 'book_list' %}" class="btn-premium">Continue Shopping</a>
+            </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<style>
+    .checkout-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    /* Order Items */
+    .order-items {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-light);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    .order-items-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: var(--bg-tertiary);
+        border-bottom: 1px solid var(--border-light);
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+    
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .order-item:last-child {
+        border-bottom: none;
+    }
+    
+    .order-item-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+    
+    .order-item-meta {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+    
+    .order-item-total {
+        font-weight: 700;
+        color: var(--accent);
+    }
+    
+    /* Summary Card */
+    .summary-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-light);
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+    
+    .summary-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+    
+    .summary-row.total {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    .summary-divider {
+        height: 1px;
+        background: var(--border-light);
+        margin: 8px 0;
+    }
+    
+    .text-success {
+        color: #198754 !important;
+    }
+    
+    /* Payment Button */
+    .pay-now-btn {
+        width: 100%;
+        background: var(--accent);
+        color: #1c1c1a;
+        border: none;
+        padding: 12px;
+        border-radius: 40px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+    
+    .pay-now-btn:hover {
+        background: var(--accent-dark);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .back-link {
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        margin-top: 12px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.8rem;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: var(--accent);
+    }
+    
+    .btn-premium {
+        display: inline-block;
+        background: var(--accent);
+        color: #1c1c1a;
+        padding: 10px 28px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-premium:hover {
+        background: var(--accent-dark);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .alert {
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+    }
+    
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    @media (max-width: 768px) {
+        .checkout-title {
+            font-size: 1.5rem;
+        }
+        
+        .order-item-title {
+            font-size: 0.85rem;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -56,54 +252,54 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const payBtn = document.getElementById("pay-button");
+    
+    if (payBtn) {
+        payBtn.addEventListener("click", function(e){
+            e.preventDefault();
 
-    payBtn.addEventListener("click", function(e){
-        e.preventDefault();
-
-        const options = {
-            "key": "{{ razorpay_merchant_key }}",
-            "amount": "{{ razorpay_amount }}",  // amount in paise
-            "currency": "INR",
-            "name": "BookStore",
-            "description": "Book Purchase",
-            "order_id": "{{ razorpay_order_id }}",
-            "handler": function(response){
-                // POST to Django payment_verify
-                fetch("{% url 'payment_verify' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_signature: response.razorpay_signature
+            const options = {
+                "key": "{{ razorpay_merchant_key }}",
+                "amount": "{{ razorpay_amount }}",
+                "currency": "INR",
+                "name": "BookStore",
+                "description": "Book Purchase",
+                "order_id": "{{ razorpay_order_id }}",
+                "handler": function(response){
+                    fetch("{% url 'payment_verify' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature
+                        })
                     })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    console.log("Payment verify response:", data); // debug
-                    if(data.status === "success"){
-                        // redirect to order success page
-                        window.location.href = `/orders/success/${data.order_id}/`;
-                    } else {
-                        document.getElementById("payment-status").innerHTML =
-                            '<div class="alert alert-danger">Payment Failed. Try again.</div>';
-                    }
-                });
-            },
-            "prefill": {
-                "name": "{{ request.user.username }}",
-                "email": "{{ request.user.email }}"
-            },
-            "theme": {
-                "color": "#007bff"
-            }
-        };
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.status === "success"){
+                            window.location.href = `/orders/success/${data.order_id}/`;
+                        } else {
+                            document.getElementById("payment-status").innerHTML =
+                                '<div class="alert alert-danger">Payment Failed. Try again.</div>';
+                        }
+                    });
+                },
+                "prefill": {
+                    "name": "{{ request.user.username }}",
+                    "email": "{{ request.user.email|default:'' }}"
+                },
+                "theme": {
+                    "color": "#c7a252"
+                }
+            };
 
-        const rzp1 = new Razorpay(options);
-        rzp1.open();
-    });
+            const rzp1 = new Razorpay(options);
+            rzp1.open();
+        });
+    }
 });
 </script>
 {% endblock %}

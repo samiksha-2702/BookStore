@@ -1,41 +1,45 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-5">
+
+<div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <h2 class="mb-4 text-center">My Orders</h2>
+            <div class="orders-header mb-4">
+                <h2 class="section-title text-center">My Orders</h2>
+                <p class="text-secondary text-center">View your order history and track purchases</p>
+            </div>
 
             {% if orders %}
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered shadow-sm">
-                    <thead class="table-primary">
+            <div class="orders-table-wrapper">
+                <table class="orders-table">
+                    <thead>
                         <tr>
                             <th>Order ID</th>
                             <th>Date</th>
                             <th>Status</th>
-                            <th>Total Amount (₹)</th>
+                            <th>Total Amount</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for order in orders %}
                         <tr>
-                            <td>{{ order.id }}</td>
+                            <td class="order-id">#{{ order.id }}</td>
                             <td>{{ order.created_at|date:"d M, Y H:i" }}</td>
                             <td>
                                 {% if order.status == "Paid" %}
-                                    <span class="badge bg-success">{{ order.status }}</span>
+                                    <span class="status-badge paid">{{ order.status }}</span>
                                 {% else %}
-                                    <span class="badge bg-warning text-dark">{{ order.status }}</span>
+                                    <span class="status-badge pending">{{ order.status }}</span>
                                 {% endif %}
                             </td>
-                            <td>₹{{ order.total_amount }}</td>
-                            <td>
-                                <a href="{% url 'order_success' order.id %}" class="btn btn-sm btn-info">
-                                    View
+                            <td class="order-amount">₹{{ order.total_amount }}</td>
+                            <td class="action-btns">
+                                <a href="{% url 'order_success' order.id %}" class="btn-view">
+                                    <i class="fa-regular fa-eye"></i>
                                 </a>
-                                <a href="{% url 'download_invoice' order.id %}" class="btn btn-sm btn-primary">
-                                    Invoice
+                                <a href="{% url 'download_invoice' order.id %}" class="btn-invoice">
+                                    <i class="fa-regular fa-file-pdf"></i>
                                 </a>
                             </td>
                         </tr>
@@ -44,12 +48,207 @@
                 </table>
             </div>
             {% else %}
-                <p class="text-center lead">You have not placed any orders yet.</p>
-                <div class="text-center mt-3">
-                    <a href="{% url 'book_list' %}" class="btn btn-primary btn-lg">Shop Now</a>
+            <div class="empty-orders">
+                <div class="empty-icon">
+                    <i class="fa-regular fa-receipt"></i>
                 </div>
+                <h4 class="empty-title">No Orders Yet</h4>
+                <p class="empty-text">You haven't placed any orders yet. Start shopping!</p>
+                <a href="{% url 'book_list' %}" class="btn-shop-now">
+                    <i class="fa-regular fa-book-open me-2"></i>Shop Now
+                </a>
+            </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<style>
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 2px;
+    }
+    
+    .orders-table-wrapper {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        overflow-x: auto;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+    }
+    
+    .orders-table thead th {
+        padding: 15px;
+        text-align: left;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .orders-table tbody td {
+        padding: 12px 15px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .orders-table tbody tr:hover {
+        background: var(--bg-tertiary);
+    }
+    
+    .orders-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .order-id {
+        font-weight: 700;
+        color: var(--accent);
+    }
+    
+    .order-amount {
+        font-weight: 700;
+        color: var(--accent);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.paid {
+        background: #28a745;
+        color: white;
+    }
+    
+    .status-badge.pending {
+        background: #ffc107;
+        color: #1c1c1a;
+    }
+    
+    .action-btns {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-view, .btn-invoice {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .btn-view {
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
+    }
+    
+    .btn-view:hover {
+        background: var(--accent);
+        color: #1c1c1a;
+    }
+    
+    .btn-invoice {
+        background: var(--bg-tertiary);
+        color: var(--accent);
+    }
+    
+    .btn-invoice:hover {
+        background: var(--accent);
+        color: #1c1c1a;
+    }
+    
+    /* Empty State */
+    .empty-orders {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--bg-secondary);
+        border-radius: 20px;
+        border: 1px solid var(--border-light);
+    }
+    
+    .empty-icon i {
+        font-size: 4rem;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+    }
+    
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+    
+    .empty-text {
+        color: var(--text-secondary);
+        margin-bottom: 25px;
+    }
+    
+    .btn-shop-now {
+        display: inline-flex;
+        align-items: center;
+        background: var(--accent);
+        color: #1c1c1a;
+        padding: 10px 30px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-shop-now:hover {
+        background: var(--accent-dark);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+        .section-title {
+            font-size: 1.4rem;
+        }
+        
+        .orders-table thead th,
+        .orders-table tbody td {
+            padding: 10px;
+            font-size: 0.8rem;
+        }
+        
+        .btn-view, .btn-invoice {
+            width: 28px;
+            height: 28px;
+        }
+    }
+</style>
+
 {% endblock %}

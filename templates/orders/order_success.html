@@ -1,65 +1,281 @@
 {% extends 'base.html' %}
 {% block content %}
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white text-center">
-                    <h3>Order Successful!</h3>
+            <!-- Success Card -->
+            <div class="success-card">
+                <div class="success-icon">
+                    <i class="fa-regular fa-circle-check"></i>
                 </div>
-                <div class="card-body">
-                    <p class="lead text-center">
-                        Thank you, <strong>{{ order.user.username }}</strong>! Your order has been placed successfully.
-                    </p>
+                <h2 class="success-title">Order Successful!</h2>
+                <p class="success-message">
+                    Thank you, <strong>{{ order.user.username }}</strong>! Your order has been placed successfully.
+                </p>
 
-                    <!-- Payment Status -->
-                    <p class="text-center">
-                        <strong>Status:</strong>
-                        {% if order.status == "Paid" %}
-                            <span class="text-success">{{ order.status }}</span>
-                        {% else %}
-                            <span class="text-warning">{{ order.status }}</span>
-                        {% endif %}
-                    </p>
+                <!-- Payment Status -->
+                <div class="payment-status">
+                    <span class="status-label">Payment Status:</span>
+                    {% if order.status == "Paid" %}
+                        <span class="status-badge success">✓ {{ order.status }}</span>
+                    {% else %}
+                        <span class="status-badge warning">{{ order.status }}</span>
+                    {% endif %}
+                </div>
 
-                    <!-- Order Summary Table -->
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h4 class="summary-title">Order Summary</h4>
                     <div class="table-responsive">
-                        <table class="table table-striped mt-3">
+                        <table class="summary-table">
                             <thead>
                                 <tr>
                                     <th>Book</th>
-                                    <th>Quantity</th>
-                                    <th>Price (₹)</th>
-                                    <th>Total (₹)</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for item in order.items.all %}
                                 <tr>
-                                    <td>{{ item.book.title }}</td>
-                                    <td>{{ item.quantity }}</td>
-                                    <td>{{ item.price }}</td>
-                                    <td>{{ item.total_price }}</td>
+                                    <td class="book-title">{{ item.book.title }}</td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td>₹{{ item.price }}</td>
+                                    <td class="total-col">₹{{ item.total_price }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
-
-                    <h5 class="text-end mt-3">Total Amount: ₹{{ order.total_amount }}</h5>
-
-                    <!-- Download Invoice Button -->
-                    <div class="text-center mt-4">
-                        <a href="{% url 'download_invoice' order.id %}" class="btn btn-primary btn-lg">
-                            Download Invoice
-                        </a>
-                        <a href="{% url 'book_list' %}" class="btn btn-secondary btn-lg ms-2">
-                            Continue Shopping
-                        </a>
+                    
+                    <div class="total-amount">
+                        <span>Total Amount:</span>
+                        <span>₹{{ order.total_amount }}</span>
                     </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="{% url 'download_invoice' order.id %}" class="btn-invoice">
+                        <i class="fa-regular fa-file-pdf me-2"></i>Download Invoice
+                    </a>
+                    <a href="{% url 'book_list' %}" class="btn-shop">
+                        <i class="fa-regular fa-arrow-right me-2"></i>Continue Shopping
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .success-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-light);
+        border-radius: 24px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: #d4edda;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+    
+    .success-icon i {
+        font-size: 2.5rem;
+        color: #28a745;
+    }
+    
+    [data-theme="dark"] .success-icon {
+        background: #1a3a2a;
+    }
+    
+    .success-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .success-message {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+    
+    .payment-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 1.5rem;
+        padding: 10px;
+        background: var(--bg-tertiary);
+        border-radius: 12px;
+    }
+    
+    .status-label {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.success {
+        background: #28a745;
+        color: white;
+    }
+    
+    .status-badge.warning {
+        background: #ffc107;
+        color: #1c1c1a;
+    }
+    
+    .order-summary {
+        background: var(--bg-tertiary);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+    
+    .summary-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .summary-table thead th {
+        padding: 8px 0;
+        text-align: left;
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 0.75rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .summary-table tbody td {
+        padding: 8px 0;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .summary-table .book-title {
+        font-weight: 500;
+    }
+    
+    .summary-table .total-col {
+        font-weight: 700;
+        color: var(--accent);
+    }
+    
+    .total-amount {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border-light);
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    .total-amount span:last-child {
+        font-size: 1.2rem;
+        color: var(--accent);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-invoice {
+        background: var(--accent);
+        color: #1c1c1a;
+        padding: 10px 24px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .btn-invoice:hover {
+        background: var(--accent-dark);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-shop {
+        background: transparent;
+        border: 1.5px solid var(--accent);
+        color: var(--accent);
+        padding: 10px 24px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .btn-shop:hover {
+        background: var(--accent);
+        color: #1c1c1a;
+        transform: translateY(-2px);
+    }
+    
+    .text-center {
+        text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+        .success-card {
+            padding: 1.5rem;
+        }
+        
+        .success-title {
+            font-size: 1.4rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-invoice, .btn-shop {
+            justify-content: center;
+        }
+    }
+</style>
+
 {% endblock %}
