@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load math_filters %}
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -43,7 +44,7 @@
                                     <td class="book-title">{{ item.book.title }}</td>
                                     <td class="text-center">{{ item.quantity }}</td>
                                     <td>₹{{ item.price }}</td>
-                                    <td class="total-col">₹{{ item.total_price }}</td>
+                                    <td class="total-col">₹{{ item.price|floatformat:2|mul:item.quantity }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
