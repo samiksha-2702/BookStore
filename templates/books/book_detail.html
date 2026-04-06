@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container mt-4">
+<div class="container mt-5">
     <div class="row g-4">
         <!-- Book Image Section -->
         <div class="col-md-4">
@@ -118,6 +118,11 @@
 <!-- Add this extra CSS for book detail specific styles -->
 {% block extra_css %}
 <style>
+    /* FIX: Push content below fixed navbar */
+    main {
+        padding-top: 100px !important;
+    }
+    
     /* Book Image Wrapper */
     .book-image-wrapper {
         position: relative;
