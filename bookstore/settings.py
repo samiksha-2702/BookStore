@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 from decouple import config
+from dotenv import load_dotenv
 import os
 from pathlib import Path
 
@@ -129,9 +130,10 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media'
 
+load_dotenv()
 # Razorpay keys (test keys for development)
-RAZORPAY_KEY_ID = 'rzp_test_SZQzHYqcsaimLd'
-RAZORPAY_KEY_SECRET = 'JQRAYWgCvmOQwZ7wLlAuK0Fo'
+RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET')
 
 
 
