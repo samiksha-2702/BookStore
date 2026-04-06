@@ -223,6 +223,10 @@ bibliocart/
 │
 ├── templates/
 │   ├── base.html                  # Shared layout, navbar, footer
+│   ├── books/
+│   │   ├── book_list.html         # Full book catalog with search
+│   │   ├── book_detail.html       # Individual book page with add to cart
+│   │   └── bestseller.html        # Curated bestsellers listing
 │   ├── accounts/
 │   │   ├── login.html             # User login page
 │   │   ├── signup.html            # User registration page
