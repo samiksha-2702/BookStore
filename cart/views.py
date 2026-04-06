@@ -1,9 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Cart, CartItem
 from books.models import Book
 
 
-# 🛒 View Cart
+#  View Cart
 def view_cart(request):
     if not request.user.is_authenticated:
         return redirect('/accounts/login/') # temporary (we'll fix with login later)
@@ -22,7 +22,7 @@ def view_cart(request):
     })
 
 
-# ➕ Add to Cart
+#  Add to Cart
 def add_to_cart(request, book_id):
     if not request.user.is_authenticated:
         return redirect('/accounts/login/')  # temporary
@@ -42,14 +42,21 @@ def add_to_cart(request, book_id):
     return redirect('view_cart')
 
 
-# ❌ Remove Item
+# Remove Item
 def remove_from_cart(request, item_id):
-    item = CartItem.objects.get(id=item_id, user=request.user)
+    # Get the user's cart
+    cart = get_object_or_404(Cart, user=request.user)
+    
+    # Get the cart item in that cart
+    item = get_object_or_404(CartItem, id=item_id, cart=cart)
+    
+    # Delete the item
     item.delete()
+    
     return redirect('view_cart')
 
 
-# ➕ Increase Quantity
+# Increase Quantity
 def increase_quantity(request, item_id):
     item = CartItem.objects.get(id=item_id, user=request.user)
     item.quantity += 1
@@ -57,7 +64,7 @@ def increase_quantity(request, item_id):
     return redirect('view_cart')
 
 
-# ➖ Decrease Quantity
+#  Decrease Quantity
 def decrease_quantity(request, item_id):
     item = CartItem.objects.get(id=item_id, user=request.user)
 

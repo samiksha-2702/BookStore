@@ -1,39 +1,480 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="mb-4">Your Cart</h2>
-{% if cart_items %}
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Book</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Total</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in cart_items %}
-        <tr>
-            <td>{{ item.book.title }}</td>
-            <td>₹{{ item.book.price }}</td>
-            <td>
-                <a href="{% url 'decrease_quantity' item.id %}" class="btn btn-sm btn-outline-secondary">-</a>
-                {{ item.quantity }}
-                <a href="{% url 'increase_quantity' item.id %}" class="btn btn-sm btn-outline-secondary">+</a>
-            </td>
-            <td>₹{{ item.total }}</td>
-            <td><a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm">Remove</a></td>
-        </tr>
-        {% endfor %}
-        <tr>
-            <td colspan="3" class="text-end fw-bold">Total:</td>
-            <td colspan="2" class="fw-bold">₹{{ total }}</td>
-        </tr>
-    </tbody>
-</table>
-<a href="{% url 'checkout' %}" class="btn btn-custom">Proceed to Checkout</a>
-{% else %}
-<p>Your cart is empty.</p>
-{% endif %}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title mb-0">Your Cart</h2>
+        <span class="cart-count-badge">{{ cart_items|length }} item{{ cart_items|length|pluralize }}</span>
+    </div>
+
+    {% if cart_items %}
+    <div class="cart-wrapper">
+        <!-- Cart Items - Desktop View -->
+        <div class="cart-items-desktop d-none d-md-block">
+            <div class="cart-header">
+                <div class="row">
+                    <div class="col-5">Book</div>
+                    <div class="col-2">Price</div>
+                    <div class="col-3">Quantity</div>
+                    <div class="col-2">Total</div>
+                </div>
+            </div>
+            
+            {% for item in cart_items %}
+            <div class="cart-item">
+                <div class="row align-items-center">
+                    <div class="col-5">
+                        <div class="cart-book-info">
+                            <img src="{{ item.book.image.url }}" class="cart-book-img" alt="{{ item.book.title }}">
+                            <div>
+                                <h6 class="cart-book-title">{{ item.book.title }}</h6>
+                                <p class="cart-book-author">{{ item.book.author }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <span class="cart-price">₹{{ item.book.price }}</span>
+                    </div>
+                    <div class="col-3">
+                        <div class="quantity-control">
+                            <a href="{% url 'decrease_quantity' item.id %}" class="quantity-btn">
+                                <i class="fa-solid fa-minus"></i>
+                            </a>
+                            <span class="quantity-number">{{ item.quantity }}</span>
+                            <a href="{% url 'increase_quantity' item.id %}" class="quantity-btn">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="cart-item-actions">
+                            <span class="cart-total">₹{{ item.total }}</span>
+                            <a href="{% url 'remove_from_cart' item.id %}" class="remove-btn" onclick="return confirm('Remove this item?')">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Cart Items - Mobile View -->
+        <div class="cart-items-mobile d-md-none">
+            {% for item in cart_items %}
+            <div class="cart-card-mobile">
+                <div class="d-flex gap-3">
+                    <img src="{{ item.book.image.url }}" class="cart-mobile-img" alt="{{ item.book.title }}">
+                    <div class="flex-grow-1">
+                        <h6 class="cart-mobile-title">{{ item.book.title }}</h6>
+                        <p class="cart-mobile-author">{{ item.book.author }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div>
+                                <span class="cart-mobile-price">₹{{ item.book.price }}</span>
+                                <span class="cart-mobile-total ms-2">Total: ₹{{ item.total }}</span>
+                            </div>
+                            <a href="{% url 'remove_from_cart' item.id %}" class="remove-mobile-btn">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </a>
+                        </div>
+                        <div class="quantity-control-mobile mt-2">
+                            <a href="{% url 'decrease_quantity' item.id %}" class="quantity-btn-mobile">
+                                <i class="fa-solid fa-minus"></i>
+                            </a>
+                            <span class="quantity-number-mobile">{{ item.quantity }}</span>
+                            <a href="{% url 'increase_quantity' item.id %}" class="quantity-btn-mobile">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Cart Summary - NEW DESIGN -->
+        <div class="cart-summary-new">
+            <div class="summary-left">
+                <a href="{% url 'book_list' %}" class="continue-shopping-btn">
+                    <i class="fa-regular fa-arrow-left"></i> Continue Shopping
+                </a>
+            </div>
+            <div class="summary-right">
+                <div class="total-amount">
+                    <span class="total-label">Total Amount:</span>
+                    <span class="total-price">₹{{ total }}</span>
+                </div>
+                <a href="{% url 'checkout' %}" class="checkout-btn">
+                    Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="empty-cart">
+        <div class="empty-cart-icon">
+            <i class="fa-regular fa-bag-shopping"></i>
+        </div>
+        <h4 class="empty-cart-title">Your cart is empty</h4>
+        <p class="empty-cart-text">Looks like you haven't added any books to your cart yet.</p>
+        <a href="{% url 'book_list' %}" class="btn-start-shopping">
+            <i class="fa-regular fa-book-open me-2"></i>Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add this extra CSS for cart specific styles -->
+{% block extra_css %}
+<style>
+    /* Section Title */
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0;
+    }
+    
+    .cart-count-badge {
+        background: var(--accent);
+        color: #1c1c1a;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    /* Cart Header Desktop */
+    .cart-header {
+        background: var(--bg-tertiary);
+        padding: 12px 20px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+    }
+    
+    /* Cart Item Desktop */
+    .cart-item {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 10px;
+        transition: all 0.3s;
+    }
+    
+    .cart-item:hover {
+        border-color: var(--accent);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .cart-book-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .cart-book-img {
+        width: 60px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    
+    .cart-book-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+    
+    .cart-book-author {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-bottom: 0;
+    }
+    
+    .cart-price {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    /* Quantity Controls */
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .quantity-btn {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .quantity-btn:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #1c1c1a;
+    }
+    
+    .quantity-number {
+        font-weight: 600;
+        min-width: 30px;
+        text-align: center;
+        color: var(--text-primary);
+    }
+    
+    .cart-item-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .cart-total {
+        font-weight: 700;
+        color: var(--accent);
+    }
+    
+    .remove-btn {
+        color: #dc3545;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .remove-btn:hover {
+        color: #bb2d3b;
+        transform: scale(1.1);
+    }
+    
+    /* NEW CART SUMMARY DESIGN */
+    .cart-summary-new {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        padding: 20px 25px;
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .summary-left {
+        flex: 1;
+    }
+    
+    .continue-shopping-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+    
+    .continue-shopping-btn:hover {
+        color: var(--accent);
+    }
+    
+    .summary-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .total-amount {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+    }
+    
+    .total-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+    
+    .total-price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--accent);
+    }
+    
+    .checkout-btn {
+        background: var(--accent);
+        color: #1c1c1a;
+        padding: 10px 24px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+    
+    .checkout-btn:hover {
+        background: var(--accent-dark);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* Mobile Styles */
+    .cart-card-mobile {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .cart-mobile-img {
+        width: 70px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    
+    .cart-mobile-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 2px;
+    }
+    
+    .cart-mobile-author {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 0;
+    }
+    
+    .cart-mobile-price {
+        font-size: 0.85rem;
+        color: var(--text-primary);
+    }
+    
+    .cart-mobile-total {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--accent);
+    }
+    
+    .remove-mobile-btn {
+        color: #dc3545;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .quantity-control-mobile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .quantity-btn-mobile {
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-light);
+        border-radius: 6px;
+        color: var(--text-primary);
+        text-decoration: none;
+    }
+    
+    .quantity-btn-mobile:hover {
+        background: var(--accent);
+    }
+    
+    .quantity-number-mobile {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    /* Empty Cart */
+    .empty-cart {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--bg-secondary);
+        border-radius: 20px;
+        border: 1px solid var(--border-light);
+    }
+    
+    .empty-cart-icon i {
+        font-size: 4rem;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+    }
+    
+    .empty-cart-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+    
+    .empty-cart-text {
+        color: var(--text-secondary);
+        margin-bottom: 25px;
+    }
+    
+    .btn-start-shopping {
+        display: inline-flex;
+        align-items: center;
+        background: var(--accent);
+        color: #1c1c1a;
+        padding: 10px 30px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-start-shopping:hover {
+        background: var(--accent-dark);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+        .section-title {
+            font-size: 1.4rem;
+        }
+        
+        .cart-summary-new {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .summary-right {
+            justify-content: center;
+        }
+        
+        .total-price {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% endblock %}
