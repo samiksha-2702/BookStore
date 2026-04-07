@@ -20,7 +20,7 @@
                         <label class="form-label">
                             <i class="fa-regular fa-user me-1"></i>Username
                         </label>
-                        <input type="text" name="username" class="form-control" 
+                        <input type="text" name="username" class="form-control auth-input" 
                                placeholder="Choose a username" required autofocus>
                     </div>
                     
@@ -28,18 +28,18 @@
                         <label class="form-label">
                             <i class="fa-regular fa-lock me-1"></i>Password
                         </label>
-                        <input type="password" name="password" class="form-control" 
+                        <input type="password" name="password" class="form-control auth-input" 
                                placeholder="Create a password" required>
-                        <small class="text-muted d-block mt-1">Password must be at least 8 characters.</small>
+                        <small class="form-text text-muted">Password must be at least 8 characters.</small>
                     </div>
                     
-                    <button type="submit" class="btn btn-premium w-100">
+                    <button type="submit" class="btn-auth-submit w-100">
                         <i class="fa-regular fa-user-plus me-2"></i>Sign Up
                     </button>
                 </form>
                 
-                <div class="text-center mt-3">
-                    <p class="mb-0 text-secondary">Already have an account? 
+                <div class="auth-footer">
+                    <p class="mb-0">Already have an account? 
                         <a href="{% url 'login' %}" class="auth-link">Login</a>
                     </p>
                 </div>
@@ -104,10 +104,83 @@
         color: var(--accent);
     }
     
+    /* Input Styles - Fixed for dark mode */
+    .auth-input {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        transition: all 0.3s;
+        width: 100%;
+    }
+    
+    .auth-input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(199, 162, 82, 0.1);
+        background: var(--bg-secondary);
+        outline: none;
+    }
+    
+    .auth-input::placeholder {
+        color: var(--text-muted);
+    }
+    
+    /* Dark mode specific fixes */
+    [data-theme="dark"] .auth-input {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+    }
+    
+    [data-theme="dark"] .auth-input::placeholder {
+        color: var(--text-muted);
+    }
+    
+    .form-text {
+        font-size: 0.7rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+    
+    .text-muted {
+        color: var(--text-muted) !important;
+    }
+    
+    .btn-auth-submit {
+        background: var(--accent);
+        color: #1c1c1a;
+        border: none;
+        padding: 12px;
+        border-radius: 40px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        width: 100%;
+    }
+    
+    .btn-auth-submit:hover {
+        background: var(--accent-dark);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+    
     .auth-link {
         color: var(--accent);
         text-decoration: none;
         font-weight: 600;
+        transition: color 0.2s;
     }
     
     .auth-link:hover {
@@ -123,6 +196,15 @@
         
         .auth-title {
             font-size: 1.5rem;
+        }
+        
+        .auth-icon {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .auth-icon i {
+            font-size: 1.6rem;
         }
     }
 </style>
