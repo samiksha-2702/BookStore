@@ -10,57 +10,20 @@
 [![Razorpay](https://img.shields.io/badge/Razorpay-Payment%20Gateway-02042B?style=flat-square&logo=razorpay&logoColor=white)](https://razorpay.com)
 [![SQLite](https://img.shields.io/badge/Database-SQLite%20%2F%20MySQL-003B57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![Demo](https://img.shields.io/badge/Demo-Coming%20Soon-orange?style=flat-square)](#)
 
 <br/>
 
-> BiblioCart is a full-stack e-commerce web application designed for buying and selling books online.  
+> BiblioCart is a full-stack e-commerce web application for buying books online.  
 > Browse books, manage your cart, pay securely, and track every order — all in one place.
 
 <br/>
 
-[Features](#-features) · [Tech Stack](#-tech-stack) · [Installation](#-installation) · [Project Structure](#-project-structure) · [Screenshots](#-screenshots) · [Future Improvements](#-future-improvements) · [Author](#-author)
+[Overview](#-overview) · [Features](#-features) · [Tech Stack](#-tech-stack) · [Architecture](#-architecture) · [Installation](#-installation) · [Project Structure](#-project-structure) · [Screenshots](#-screenshots) · [Future Improvements](#-future-improvements) · [Author](#-author)
 
 </div>
 
 ---
-## 📸 Screenshots
-
-### 📝 home page
-![Register](screenshots/home-white.png)
-
-### 📝 home page
-![Register](screenshots/home-dark.png)
-
-### 🔐 Signup
-![Login](screenshots/signup.png)
-
-### 🔐 Login
-![Login](screenshots/login.png)
-
-### 🔐 Profile
-![Login](screenshots/profile.png)
-
-### 🔐 Cart
-![Login](screenshots/cart.png)
-
-### 🏠 Checkout
-![Dashboard](screenshots/checkout.png)
-
-### 📅 Payment Detail
-![Book Appointment](screenshots/payment.png)
-
-### 📋 Razorpay
-![View Appointments](screenshots/razorpay2.png)
-
-### ✏️ Order Successfull
-![Update Appointment](screenshots/successful.png)
-
-### ✏️ Track Order
-![Update User profile](screenshots/track-orders.png)
-
-### ✏️ Bestseller
-![Update User profile](screenshots/bestseller.png)
-
 
 ## 🧭 Overview
 
@@ -75,17 +38,18 @@ This project demonstrates practical full-stack development skills including back
 ### 🔐 Authentication
 - User registration, login, and logout
 - Session-based secure access
-- User-specific data isolation (orders, history)
+- User-specific data isolation (orders, cart, history)
 
 ### 📖 Books & Browsing
 - Browse the full book catalog
 - Search books by title, author, or category
 - Detailed book view with description and pricing
+- Curated bestsellers listing
 
 ### 🛒 Cart Management
-- Add books to the cart
-- Update quantities and remove items
-- Real-time cart summary with price calculation (via custom template filters)
+- Add books to the cart and update quantities
+- Remove items individually
+- Real-time cart summary with price calculation via custom template filters
 
 ### 💳 Checkout & Payments
 - Streamlined checkout flow
@@ -103,7 +67,7 @@ This project demonstrates practical full-stack development skills including back
   ```
 
 ### 🧾 Invoice
-- Optional invoice download for completed orders
+- Invoice download for completed orders
 
 ### 📱 Responsive UI
 - Built with Bootstrap 5
@@ -190,18 +154,20 @@ pip install -r requirements.txt
 
 ### 4. Configure Environment Variables
 
-Create a `.env` file in the project root and add the following:
+Copy the example env file and fill in your values:
+
+```bash
+cp .env.example .env
+```
 
 ```env
 SECRET_KEY=your_django_secret_key
-
 DEBUG=True
-
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 ```
 
-> ⚠️ Never commit your `.env` file. It is included in `.gitignore` by default.
+> ⚠️ Never commit your `.env` file. It is already included in `.gitignore`.
 
 ### 5. Apply Migrations
 
@@ -238,28 +204,26 @@ Visit `http://127.0.0.1:8000` in your browser.
 bibliocart/
 │
 ├── bookstore/
-│   └──settings.py
+│   └── settings.py
+│
 ├── books/
-│   ├── models.py          # Book model (title, author, price, cover, etc.)
-│   ├── views.py           # Book listing, search, detail views
+│   ├── models.py              # Book model (title, author, price, cover, etc.)
+│   ├── views.py               # Book listing, search, detail views
 │   └── urls.py
-│  
 │
 ├── cart/
-│   ├── views.py           # Add, update, remove cart items
+│   ├── views.py               # Add, update, remove cart items
+│   ├── templatetags/          # Custom template filters (e.g. quantity × price)
 │   └── context_processors.py  # Cart count available globally
-│   
 │
 ├── orders/
-│   ├── models.py          # Order, OrderItem models with status tracking
-│   ├── views.py           # Checkout, order history, order detail, tracking
+│   ├── models.py              # Order, OrderItem models with status tracking
+│   ├── views.py               # Checkout, order history, order detail, tracking
 │   └── urls.py
-│   
 │
 ├── users/
-│   ├── views.py           # Register, login, logout
+│   ├── views.py               # Register, login, logout
 │   └── forms.py
-│   
 │
 ├── templates/
 │   ├── base.html                  # Shared layout, navbar, footer
@@ -268,18 +232,18 @@ bibliocart/
 │   │   ├── book_detail.html       # Individual book page with add to cart
 │   │   └── bestseller.html        # Curated bestsellers listing
 │   ├── accounts/
-│   │   ├── login.html             # User login page
-│   │   ├── signup.html            # User registration page
-│   │   ├── profile.html           # View user profile
-│   │   └── edit_profile.html      # Edit profile details
+│   │   ├── login.html
+│   │   ├── signup.html
+│   │   ├── profile.html
+│   │   └── edit_profile.html
 │   ├── cart/
 │   │   └── cart.html              # Cart items, quantities, subtotal
 │   └── orders/
-│       ├── checkout.html          # Checkout form
+│       ├── checkout.html
 │       ├── payment.html           # Razorpay payment trigger page
-│       ├── order_success.html     # Post-payment confirmation
-│       ├── order_history.html     # List of all past orders
-│       └── track_order.html       # Order status progress tracker
+│       ├── order_success.html
+│       ├── order_history.html
+│       └── track_order.html       # Visual status progress tracker
 │
 ├── static/
 │   ├── css/
@@ -300,60 +264,56 @@ bibliocart/
 
 ## 📸 Screenshots
 
-> 🚧 Live screenshots will be added after deployment. The following screens are available in the application:
+### 🏠 Home Page (Light)
+![Home Light](screenshots/home-white.png)
 
-<br/>
+### 🌙 Home Page (Dark)
+![Home Dark](screenshots/home-dark.png)
 
-<div align="center">
+### 🔐 Signup
+![Signup](screenshots/signup.png)
 
-<!-- SCREENSHOT GUIDE:
-  To add screenshots:
-  1. Create a folder: /docs/screenshots/
-  2. Add your images there (e.g., home.png, cart.png, etc.)
-  3. Replace each placeholder block below with:
-     <img src="docs/screenshots/your-image.png" alt="Page Name" width="100%" />
--->
+### 🔐 Login
+![Login](screenshots/login.png)
 
-| 🏠 Home — Book Listing | 📖 Book Detail |
-|:---:|:---:|
-| ![Home](https://placehold.co/600x380/1a1a2e/ffffff?text=Home+%E2%80%94+Book+Listing&font=lato) | ![Book Detail](https://placehold.co/600x380/16213e/ffffff?text=Book+Detail+Page&font=lato) |
-| Browse and search the full catalog | View description, price, and add to cart |
+### 👤 Profile
+![Profile](screenshots/profile.png)
 
-<br/>
+### 🛒 Cart
+![Cart](screenshots/cart.png)
 
-| 🛒 Cart | 💳 Checkout & Razorpay |
-|:---:|:---:|
-| ![Cart](https://placehold.co/600x380/0f3460/ffffff?text=Cart+Management&font=lato) | ![Checkout](https://placehold.co/600x380/533483/ffffff?text=Checkout+%2B+Razorpay&font=lato) |
-| Manage items and view subtotal | Secure payment via Razorpay (test mode) |
+### 🏁 Checkout
+![Checkout](screenshots/checkout.png)
 
-<br/>
+### 💳 Payment Detail
+![Payment](screenshots/payment.png)
 
-| 📦 Order History | 🔍 Order Tracking |
-|:---:|:---:|
-| ![Order History](https://placehold.co/600x380/1b4332/ffffff?text=Order+History&font=lato) | ![Order Tracking](https://placehold.co/600x380/1d3557/ffffff?text=Order+Tracking+%E2%80%94+Status+Progress&font=lato) |
-| View all past orders per user | Visual status bar: Pending → Shipped → Completed |
+### 💰 Razorpay Gateway
+![Razorpay](screenshots/razorpay2.png)
 
-</div>
+### ✅ Order Successful
+![Order Success](screenshots/successful.png)
 
-<br/>
+### 📦 Track Order
+![Track Order](screenshots/track-orders.png)
 
-> 💡 **Want to see it in action?** Clone the repo, run locally, and explore all screens.  
-> Deployment coming soon on [Railway](https://railway.app) / [Render](https://render.com).
+### ⭐ Bestsellers
+![Bestsellers](screenshots/bestseller.png)
 
 ---
 
 ## 🔮 Future Improvements
 
 - [ ] Deploy to [Railway](https://railway.app) or [Render](https://render.com) with a live demo URL
-- [ ] Switch production database from SQLite to **PostgreSQL or MySQL**
+- [ ] Switch production database to **PostgreSQL or MySQL**
 - [ ] Add **book reviews and ratings** system
 - [ ] Implement **wishlist** functionality
-- [ ] Add **admin dashboard** for inventory and order management
+- [ ] Build **admin dashboard** for inventory and order management
 - [ ] Introduce **discount codes and coupons**
 - [ ] Integrate **email notifications** for order updates
 - [ ] Add **pagination** to book listings
 - [ ] Write unit and integration **tests** for core modules
-- [ ] Implement **REST API** layer using Django REST Framework
+- [ ] Implement a **REST API** layer using Django REST Framework
 
 ---
 
@@ -378,7 +338,7 @@ This project is licensed under the [MIT License](LICENSE).
 ## 👩‍💻 Author
 
 **Samiksha**  
-Final Year MCA Student · Django Backend Developer  
+Final Year MCA Student · Django Backend Developer
 
 [![GitHub](https://img.shields.io/badge/GitHub-samiksha--2702-181717?style=flat-square&logo=github)](https://github.com/samiksha-2702)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat-square&logo=linkedin)](https://linkedin.com/in/your-linkedin)
