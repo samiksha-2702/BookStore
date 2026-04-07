@@ -15,7 +15,7 @@
 <br/>
 
 > BiblioCart is a full-stack e-commerce web application for buying books online.  
-> Browse books, manage your cart, pay securely, and track every order — all in one place.
+> Browse books, save to wishlist, manage your cart, pay securely, and track every order — all in one place.
 
 <br/>
 
@@ -45,6 +45,8 @@ This project demonstrates practical full-stack development skills including back
 - Search books by title, author, or category
 - Detailed book view with description and pricing
 - Curated bestsellers listing
+- Paginated book listings for better performance and UX
+- Wishlist to save favourite books for later
 
 ### 🛒 Cart Management
 - Add books to the cart and update quantities
@@ -307,11 +309,9 @@ bibliocart/
 - [ ] Deploy to [Railway](https://railway.app) or [Render](https://render.com) with a live demo URL
 - [ ] Switch production database to **PostgreSQL or MySQL**
 - [ ] Add **book reviews and ratings** system
-- [ ] Implement **wishlist** functionality
 - [ ] Build **admin dashboard** for inventory and order management
 - [ ] Introduce **discount codes and coupons**
 - [ ] Integrate **email notifications** for order updates
-- [ ] Add **pagination** to book listings
 - [ ] Write unit and integration **tests** for core modules
 - [ ] Implement a **REST API** layer using Django REST Framework
 
