@@ -165,6 +165,31 @@
     </div>
     {% endfor %}
   </div>
+
+  <!-- Pagination -->
+  {% if books.has_other_pages %}
+  <div class="pagination-wrapper">
+    <div class="pagination">
+      {% if books.has_previous %}
+        <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="page-link first">&laquo; First</a>
+        <a href="?page={{ books.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="page-link prev">&lsaquo; Prev</a>
+      {% endif %}
+
+      {% for num in books.paginator.page_range %}
+        {% if books.number == num %}
+          <span class="page-link active">{{ num }}</span>
+        {% elif num > books.number|add:'-3' and num < books.number|add:'3' %}
+          <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="page-link">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if books.has_next %}
+        <a href="?page={{ books.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="page-link next">Next &rsaquo;</a>
+        <a href="?page={{ books.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" class="page-link last">Last &raquo;</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 <!-- Wishlist Toggle JavaScript -->
@@ -718,6 +743,60 @@ document.addEventListener("DOMContentLoaded", function () {
     transform: translateY(-2px);
   }
 
+  /* Pagination Styles */
+  .pagination-wrapper {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .pagination {
+    display: inline-flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+  
+  .page-link:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1c1c1a;
+    transform: translateY(-2px);
+  }
+  
+  .page-link.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1c1c1a;
+    cursor: default;
+  }
+  
+  .page-link.active:hover {
+    transform: none;
+  }
+  
+  .page-link.first,
+  .page-link.last {
+    min-width: auto;
+  }
+
   /* Responsive */
   @media (max-width: 768px) {
     .hero-section {
@@ -787,6 +866,17 @@ document.addEventListener("DOMContentLoaded", function () {
     
     .search-section {
       max-width: 100%;
+    }
+    
+    .pagination {
+      gap: 0.3rem;
+    }
+    
+    .page-link {
+      min-width: 30px;
+      height: 30px;
+      padding: 0 8px;
+      font-size: 0.75rem;
     }
   }
 
