@@ -58,15 +58,18 @@ def remove_from_cart(request, item_id):
 
 # Increase Quantity
 def increase_quantity(request, item_id):
-    item = CartItem.objects.get(id=item_id, user=request.user)
+    # Get the cart item belonging to this user
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    
     item.quantity += 1
     item.save()
     return redirect('view_cart')
 
 
-#  Decrease Quantity
+# Decrease Quantity
 def decrease_quantity(request, item_id):
-    item = CartItem.objects.get(id=item_id, user=request.user)
+    # Get the cart item belonging to this user
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
 
     if item.quantity > 1:
         item.quantity -= 1

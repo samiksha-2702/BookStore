@@ -66,6 +66,12 @@ def payment_view(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     cart_items = order.items.all()
 
+    # Prefill phone from order if exists, else from profile
+    if order.phone:
+        user_phone = order.phone
+    else:
+        user_phone = getattr(getattr(request.user, 'profile', None), 'phone', '')
+
     if order.razorpay_order_id:
         razorpay_order_id = order.razorpay_order_id
     else:
@@ -85,11 +91,11 @@ def payment_view(request, order_id):
         "razorpay_order_id": razorpay_order_id,
         "razorpay_merchant_key": settings.RAZORPAY_KEY_ID,
         "order": order,
-        "cart_items": cart_items
+        "cart_items": cart_items,
+        "user_phone": user_phone,  # <-- send phone to template
     }
 
     return render(request, "orders/payment.html", context)
-
 
 
 @csrf_exempt
@@ -115,7 +121,6 @@ def payment_verify(request):
                 user=request.user
             )
 
-            # ✅ FIX: realistic flow
             order.status = "Processing"
             order.razorpay_payment_id = razorpay_payment_id
             order.save()
@@ -138,12 +143,11 @@ def order_success(request, order_id):
     return render(request, "orders/order_success.html", {"order": order})
 
 
-# ===================== ORDER HISTORY =====================
+
 @login_required
 def order_history(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
 
-    # ✅ REAL STATS (IMPORTANT)
     total_orders = orders.count()
     completed_orders = orders.filter(
         status__in=["Completed", "Delivered"]
@@ -187,7 +191,6 @@ def download_invoice(request, order_id):
 def track_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    # ✅ Industry-standard stages
     stages = ['Pending', 'Processing', 'Shipped', 'Delivered']
 
     current_stage_index = (
@@ -200,3 +203,4 @@ def track_order(request, order_id):
         'stages': stages,
         'current_stage_index': current_stage_index
     })
+
