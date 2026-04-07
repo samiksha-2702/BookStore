@@ -340,8 +340,8 @@ This project is licensed under the [MIT License](LICENSE).
 **Samiksha**  
 Final Year MCA Student · Django Backend Developer
 
-[![GitHub](https://img.shields.io/badge/GitHub-samiksha--2702-181717?style=flat-square&logo=github)](https://github.com/samiksha-2702)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat-square&logo=linkedin)](https://linkedin.com/in/your-linkedin)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/samiksha-2702)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://linkedin.com/in/your-profile)
 
 ---
 
