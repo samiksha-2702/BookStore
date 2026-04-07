@@ -23,6 +23,44 @@
 </div>
 
 ---
+## 📸 Screenshots
+
+### 📝 home page
+![Register](screenshots/home-white.png)
+
+### 📝 home page
+![Register](screenshots/home-dark.png)
+
+### 🔐 Signup
+![Login](screenshots/signup.png)
+
+### 🔐 Login
+![Login](screenshots/login.png)
+
+### 🔐 Profile
+![Login](screenshots/profile.png)
+
+### 🔐 Cart
+![Login](screenshots/cart.png)
+
+### 🏠 Checkout
+![Dashboard](screenshots/checkout.png)
+
+### 📅 Payment Detail
+![Book Appointment](screenshots/payment.png)
+
+### 📋 Razorpay
+![View Appointments](screenshots/razorpay2.png)
+
+### ✏️ Order Successfull
+![Update Appointment](screenshots/successful.png)
+
+### ✏️ Track Order
+![Update User profile](screenshots/track-orders.png)
+
+### ✏️ Bestseller
+![Update User profile](screenshots/bestseller.png)
+
 
 ## 🧭 Overview
 
