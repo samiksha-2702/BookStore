@@ -1,73 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="orders-header mb-4">
-                <h2 class="section-title text-center">My Orders</h2>
-                <p class="text-secondary text-center">View your order history and track purchases</p>
-            </div>
-
-            {% if orders %}
-            <div class="orders-table-wrapper">
-                <table class="orders-table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Total Amount</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for order in orders %}
-                        <tr>
-                            <td class="order-id">#{{ order.id }}</td>
-                            <td>{{ order.created_at|date:"d M, Y H:i" }}</td>
-                            <td>
-                                {% if order.status == "Paid" %}
-                                    <span class="status-badge paid">{{ order.status }}</span>
-                                {% else %}
-                                    <span class="status-badge pending">{{ order.status }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="order-amount">₹{{ order.total_amount }}</td>
-                            <td class="action-btns">
-                                <a href="{% url 'order_success' order.id %}" class="btn-view">
-                                    <i class="fa-regular fa-eye"></i>
-                                </a>
-                                <a href="{% url 'download_invoice' order.id %}" class="btn-invoice">
-                                    <i class="fa-regular fa-file-pdf"></i>
-                                </a>
-                                </a>
-    <a href="{% url 'track_order' order.id %}" class="btn btn-sm btn-info">
-        Track
-    </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-orders">
-                <div class="empty-icon">
-                    <i class="fa-regular fa-receipt"></i>
-                </div>
-                <h4 class="empty-title">No Orders Yet</h4>
-                <p class="empty-text">You haven't placed any orders yet. Start shopping!</p>
-                <a href="{% url 'book_list' %}" class="btn-shop-now">
-                    <i class="fa-regular fa-book-open me-2"></i>Shop Now
-                </a>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
 <style>
+    /* Fix navbar overlap */
+    main {
+        padding-top: 100px !important;
+    }
+    
     .section-title {
         font-size: 1.8rem;
         font-weight: 700;
@@ -87,6 +26,34 @@
         height: 3px;
         background: var(--accent);
         border-radius: 2px;
+    }
+    
+    .orders-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        text-align: center;
+        padding: 1rem 2rem;
+        background: var(--bg-secondary);
+        border-radius: 16px;
+        border: 1px solid var(--border-light);
+        min-width: 120px;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--accent);
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
     }
     
     .orders-table-wrapper {
@@ -118,6 +85,10 @@
         color: var(--text-primary);
         font-size: 0.9rem;
         border-bottom: 1px solid var(--border-light);
+    }
+    
+    .orders-table tbody tr {
+        transition: background 0.2s;
     }
     
     .orders-table tbody tr:hover {
@@ -159,17 +130,20 @@
     .action-btns {
         display: flex;
         gap: 8px;
+        flex-wrap: wrap;
     }
     
-    .btn-view, .btn-invoice {
+    .btn-view, .btn-invoice, .btn-track {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
+        gap: 5px;
+        padding: 6px 12px;
+        border-radius: 20px;
         text-decoration: none;
         transition: all 0.2s;
+        font-size: 0.75rem;
+        font-weight: 500;
     }
     
     .btn-view {
@@ -189,6 +163,16 @@
     
     .btn-invoice:hover {
         background: var(--accent);
+        color: #1c1c1a;
+    }
+    
+    .btn-track {
+        background: var(--bg-tertiary);
+        color: #0dcaf0;
+    }
+    
+    .btn-track:hover {
+        background: #0dcaf0;
         color: #1c1c1a;
     }
     
@@ -242,17 +226,151 @@
             font-size: 1.4rem;
         }
         
+        .orders-stats {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        
+        .stat-card {
+            padding: 0.75rem 1.5rem;
+            min-width: auto;
+            width: 100%;
+            max-width: 200px;
+        }
+        
+        .stat-number {
+            font-size: 1.4rem;
+        }
+        
         .orders-table thead th,
         .orders-table tbody td {
             padding: 10px;
             font-size: 0.8rem;
         }
         
-        .btn-view, .btn-invoice {
-            width: 28px;
-            height: 28px;
+        .action-btns {
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .btn-view, .btn-invoice, .btn-track {
+            padding: 4px 10px;
+            font-size: 0.7rem;
         }
     }
 </style>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <!-- Header -->
+            <div class="orders-header mb-4">
+                <h2 class="section-title text-center">My Orders</h2>
+                <p class="text-secondary text-center">View your order history and track purchases</p>
+            </div>
+
+            {% if orders %}
+
+            <!-- ✅ REAL STATS -->
+            <div class="orders-stats">
+                <div class="stat-card">
+                    <div class="stat-number">{{ total_orders }}</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ completed_orders }}</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ in_transit_orders }}</div>
+                    <div class="stat-label">In Transit</div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="orders-table-wrapper">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Total Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td class="order-id">#{{ order.id }}</td>
+                            <td>{{ order.created_at|date:"d M, Y" }}</td>
+
+                            <!-- ✅ FIXED STATUS UI -->
+                            <td>
+                                {% if order.status == "Completed" or order.status == "Delivered" %}
+                                    <span class="status-badge paid">
+                                        <i class="fa-regular fa-circle-check me-1"></i>{{ order.status }}
+                                    </span>
+
+                                {% elif order.status == "Shipped" %}
+                                    <span class="status-badge" style="background:#0dcaf0; color:#1c1c1a;">
+                                        <i class="fa-solid fa-truck me-1"></i>{{ order.status }}
+                                    </span>
+
+                                {% elif order.status == "Processing" %}
+                                    <span class="status-badge" style="background:#6c757d; color:white;">
+                                        <i class="fa-solid fa-gear me-1"></i>{{ order.status }}
+                                    </span>
+
+                                {% else %}
+                                    <span class="status-badge pending">
+                                        <i class="fa-regular fa-clock me-1"></i>{{ order.status }}
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="order-amount">₹{{ order.total_amount }}</td>
+
+                            <td class="action-btns">
+                                <a href="{% url 'order_success' order.id %}" class="btn-view">
+                                    <i class="fa-regular fa-eye"></i> View
+                                </a>
+
+                                <a href="{% url 'download_invoice' order.id %}" class="btn-invoice">
+                                    <i class="fa-regular fa-file-pdf"></i> Invoice
+                                </a>
+
+                                <a href="{% url 'track_order' order.id %}" class="btn-track">
+                                    <i class="fa-solid fa-truck"></i> Track
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <!-- Empty State -->
+            <div class="empty-orders">
+                <div class="empty-icon">
+                    <i class="fa-regular fa-receipt"></i>
+                </div>
+                <h4 class="empty-title">No Orders Yet</h4>
+                <p class="empty-text">You haven't placed any orders yet. Start shopping!</p>
+                <a href="{% url 'book_list' %}" class="btn-shop-now">
+                    <i class="fa-regular fa-book-open me-2"></i>Shop Now
+                </a>
+            </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+</div>
 
 {% endblock %}

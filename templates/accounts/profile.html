@@ -1,159 +1,106 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="profile-header mb-4">
-                <h2 class="section-title mb-2">My Profile</h2>
-                <p class="text-secondary">Manage your account information</p>
-            </div>
-
-            <div class="profile-card">
-                <div class="profile-avatar mb-4">
-                    <div class="avatar-circle">
-                        <i class="fa-regular fa-user fa-2x"></i>
-                    </div>
-                    <h4 class="mb-0 mt-2">{{ user.username }}</h4>
-                </div>
-                
-                <div class="profile-info">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="info-item">
-                                <label class="info-label">First Name</label>
-                                <p class="info-value">{{ user.first_name|default:"Not set" }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="info-item">
-                                <label class="info-label">Last Name</label>
-                                <p class="info-value">{{ user.last_name|default:"Not set" }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="info-item">
-                                <label class="info-label">Email Address</label>
-                                <p class="info-value">{{ user.email|default:"Not set" }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="info-item">
-                                <label class="info-label">Phone Number</label>
-                                <p class="info-value">{{ profile.phone|default:"Not set" }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="col-12">
-                            <div class="info-item">
-                                <label class="info-label">Address</label>
-                                <p class="info-value">
-                                    {% if profile.address_line1 %}
-                                        {{ profile.address_line1 }}{% if profile.address_line2 %}, {{ profile.address_line2 }}{% endif %}
-                                    {% else %}
-                                        Not set
-                                    {% endif %}
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="info-item">
-                                <label class="info-label">City</label>
-                                <p class="info-value">{{ profile.city|default:"Not set" }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="info-item">
-                                <label class="info-label">State</label>
-                                <p class="info-value">{{ profile.state|default:"Not set" }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="info-item">
-                                <label class="info-label">Pincode</label>
-                                <p class="info-value">{{ profile.pincode|default:"Not set" }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="profile-actions mt-4">
-                    <a href="{% url 'edit_profile' %}" class="btn btn-premium">
-                        <i class="fa-regular fa-pen-to-square me-2"></i>Edit Profile
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
-    .section-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        position: relative;
-        display: inline-block;
-        margin-bottom: 0;
+    /* Fix navbar overlap */
+    main {
+        padding-top: 100px !important;
     }
     
-    .section-title:after {
-        content: '';
-        position: absolute;
-        bottom: -8px;
-        left: 0;
-        width: 50px;
-        height: 3px;
-        background: var(--accent);
-        border-radius: 2px;
+    .profile-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .profile-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .profile-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-header p {
+        color: var(--text-secondary);
     }
     
     .profile-card {
         background: var(--bg-secondary);
-        border: 1px solid var(--border-light);
-        border-radius: 20px;
-        padding: 2rem;
+        border-radius: 24px;
+        overflow: hidden;
         box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-light);
+    }
+    
+    .profile-cover {
+        height: 100px;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
     }
     
     .profile-avatar {
         text-align: center;
-        border-bottom: 1px solid var(--border-light);
-        padding-bottom: 1.5rem;
+        margin-top: -50px;
+        margin-bottom: 1rem;
     }
     
     .avatar-circle {
-        width: 80px;
-        height: 80px;
-        background: var(--accent-bg);
+        width: 100px;
+        height: 100px;
+        background: var(--bg-secondary);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto;
+        border: 4px solid var(--accent);
+        box-shadow: var(--shadow-md);
     }
     
     .avatar-circle i {
         color: var(--accent);
-        font-size: 2rem;
+        font-size: 2.5rem;
+    }
+    
+    .profile-name {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .profile-name h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+    
+    .profile-name .member-since {
+        font-size: 0.8rem;
+        color: var(--text-muted);
     }
     
     .profile-info {
-        padding: 1rem 0;
+        padding: 0 1.5rem 1.5rem;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
     }
     
     .info-item {
-        margin-bottom: 1rem;
+        background: var(--bg-tertiary);
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
     }
     
     .info-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -163,49 +110,148 @@
     }
     
     .info-value {
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: var(--text-primary);
         margin-bottom: 0;
         font-weight: 500;
+        word-break: break-word;
+    }
+    
+    .info-full {
+        grid-column: span 2;
     }
     
     .profile-actions {
-        border-top: 1px solid var(--border-light);
-        padding-top: 1.5rem;
+        padding: 1rem 1.5rem 1.5rem;
         text-align: center;
+        border-top: 1px solid var(--border-light);
+        margin-top: 0.5rem;
     }
     
-    .btn-premium {
+    .btn-edit {
         background: var(--accent);
         color: #1c1c1a;
         border: none;
-        padding: 10px 28px;
+        padding: 10px 32px;
         border-radius: 40px;
         font-weight: 600;
         transition: all 0.3s;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
+        gap: 8px;
     }
     
-    .btn-premium:hover {
+    .btn-edit:hover {
         background: var(--accent-dark);
         color: white;
         transform: translateY(-2px);
     }
     
     @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+        
+        .info-full {
+            grid-column: span 1;
+        }
+        
         .profile-card {
-            padding: 1.5rem;
+            margin: 0 15px;
         }
         
-        .section-title {
-            font-size: 1.4rem;
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
         }
         
-        .info-value {
-            font-size: 0.9rem;
+        .avatar-circle i {
+            font-size: 2rem;
+        }
+        
+        .profile-name h3 {
+            font-size: 1.3rem;
         }
     }
 </style>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <h2>My Profile</h2>
+        <p>Manage your account information</p>
+    </div>
+
+    <div class="profile-card">
+        <div class="profile-cover"></div>
+        
+        <div class="profile-avatar">
+            <div class="avatar-circle">
+                <i class="fa-regular fa-user"></i>
+            </div>
+        </div>
+        
+        <div class="profile-name">
+            <h3>{{ user.username }}</h3>
+            <span class="member-since">Member since {{ user.date_joined|date:"F Y" }}</span>
+        </div>
+        
+        <div class="profile-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">First Name</span>
+                    <p class="info-value">{{ user.first_name|default:"Not set" }}</p>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Last Name</span>
+                    <p class="info-value">{{ user.last_name|default:"Not set" }}</p>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Email Address</span>
+                    <p class="info-value">{{ user.email|default:"Not set" }}</p>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Phone Number</span>
+                    <p class="info-value">{{ profile.phone|default:"Not set" }}</p>
+                </div>
+                
+                <div class="info-item info-full">
+                    <span class="info-label">Address</span>
+                    <p class="info-value">
+                        {% if profile.address_line1 %}
+                            {{ profile.address_line1 }}{% if profile.address_line2 %}, {{ profile.address_line2 }}{% endif %}
+                        {% else %}
+                            Not set
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">City</span>
+                    <p class="info-value">{{ profile.city|default:"Not set" }}</p>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">State</span>
+                    <p class="info-value">{{ profile.state|default:"Not set" }}</p>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label">Pincode</span>
+                    <p class="info-value">{{ profile.pincode|default:"Not set" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            <a href="{% url 'edit_profile' %}" class="btn-edit">
+                <i class="fa-regular fa-pen-to-square"></i> Edit Profile
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

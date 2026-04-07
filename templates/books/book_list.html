@@ -1,25 +1,20 @@
 {% extends 'base.html' %} {% block content %}
 
-<!-- Hero Section -->
-<div class="hero-section mt-4 mb-5">
+<!-- Hero Section - Smaller -->
+<div class="hero-section mt-4 mb-4">
   <div class="container">
     <div class="row align-items-center">
       <div class="col-lg-6">
-        <h1 class="hero-title">
-          Discover Your Next<br /><span class="hero-accent">Great Read</span>
-        </h1>
+        <h1 class="hero-title">Discover Your Next <span class="hero-accent">Great Read</span></h1>
         <p class="hero-text">
-          Explore thousands of books from bestsellers to hidden gems. Find your
-          perfect story today.
+          Explore thousands of books from bestsellers to hidden gems.
         </p>
         <div class="hero-buttons">
-          <a href="#books-grid" class="btn btn-premium btn-lg">Shop Now</a>
-          <a href="#categories" class="btn btn-outline-premium btn-lg"
-            >Browse Categories</a
-          >
+          <a href="#books-grid" class="btn btn-premium">Shop Now</a>
+          <a href="#categories" class="btn btn-outline-premium">Browse Categories</a>
         </div>
       </div>
-      <div class="col-lg-6">
+      <div class="col-lg-6 d-none d-lg-block">
         <div class="hero-image text-center">
           <i class="fa-solid fa-book-open-reader"></i>
         </div>
@@ -29,6 +24,35 @@
 </div>
 
 <div class="container mt-4">
+  <!-- Search Bar - Smaller Width -->
+  <div class="search-section mb-4">
+    <div class="search-container">
+      <form method="get" action="{% url 'book_list' %}" class="search-form">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-search search-icon"></i>
+          <input
+            type="text"
+            name="q"
+            class="search-input-field"
+            placeholder="Search books..."
+            value="{{ request.GET.q|default:'' }}"
+          />
+          {% if request.GET.q %}
+          <a href="{% url 'book_list' %}" class="clear-search">
+            <i class="fa-regular fa-times-circle"></i>
+          </a>
+          {% endif %}
+        </div>
+        <button type="submit" class="search-submit-btn">Search</button>
+      </form>
+      {% if request.GET.q %}
+      <div class="search-result-info">
+        <p>Showing results for: <strong>"{{ request.GET.q }}"</strong></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
   <!-- Category Filter -->
   <div id="categories" class="mb-4">
     <h4 class="section-title">Categories</h4>
@@ -41,7 +65,7 @@
       </a>
       {% for category in categories %}
       <a
-        href="?category={{ category.id }}"
+        href="?category={{ category.id }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
         class="category-btn {% if request.GET.category|add:'0' == category.id %}active-category{% endif %}"
       >
         {{ category.name }}
@@ -71,7 +95,7 @@
           {% endif %}
         </div>
 
-        <!-- ✅ UPDATED WISHLIST BUTTON -->
+        <!-- Wishlist Button -->
         <div class="wishlist-icon">
           <a
             href="javascript:void(0);"
@@ -136,13 +160,14 @@
     {% empty %}
     <div class="col-12 text-center py-5">
       <i class="fa-solid fa-book-open fa-3x mb-3"></i>
-      <p class="text-muted">No books found.</p>
+      <p class="text-muted">No books found matching your search.</p>
+      <a href="{% url 'book_list' %}" class="btn btn-outline-premium mt-2">Clear Search</a>
     </div>
     {% endfor %}
   </div>
 </div>
 
-<!-- ✅ JAVASCRIPT ADDED (NO REDIRECT, HEART TOGGLE) -->
+<!-- Wishlist Toggle JavaScript -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const buttons = document.querySelectorAll(".toggle-wishlist");
@@ -172,16 +197,110 @@ document.addEventListener("DOMContentLoaded", function () {
 
 {% block extra_css %}
 <style>
-  /* Hero Section */
+  /* Search Bar Styles - Reduced Width */
+  .search-section {
+    max-width: 450px;
+    margin: 0 auto;
+  }
+  
+  .search-container {
+    background: var(--bg-secondary);
+    border-radius: 50px;
+    padding: 6px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s;
+  }
+  
+  .search-container:focus-within {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+  }
+  
+  .search-form {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .search-input-wrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 15px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  
+  .search-input-field {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 10px 15px 10px 38px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    outline: none;
+    border-radius: 50px;
+  }
+  
+  .search-input-field::placeholder {
+    color: var(--text-muted);
+  }
+  
+  .clear-search {
+    position: absolute;
+    right: 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  
+  .clear-search:hover {
+    color: var(--accent);
+  }
+  
+  .search-submit-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 50px;
+    padding: 0 20px;
+    color: #1c1c1a;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  
+  .search-submit-btn:hover {
+    background: var(--accent-dark);
+    color: white;
+    transform: translateY(-1px);
+  }
+  
+  .search-result-info {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+  
+  .search-result-info strong {
+    color: var(--accent);
+  }
+
+  /* Hero Section - Smaller */
   .hero-section {
     background: linear-gradient(
       135deg,
       var(--bg-secondary) 0%,
       var(--bg-tertiary) 100%
     );
-    padding: 60px 0;
-    border-radius: 0 0 30px 30px;
-    margin-top: -20px;
+    padding: 30px 0;
+    border-radius: 0 0 24px 24px;
     position: relative;
     overflow: hidden;
   }
@@ -191,8 +310,8 @@ document.addEventListener("DOMContentLoaded", function () {
     position: absolute;
     top: -50%;
     right: -10%;
-    width: 500px;
-    height: 500px;
+    width: 300px;
+    height: 300px;
     background: var(--accent);
     opacity: 0.05;
     border-radius: 50%;
@@ -200,10 +319,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   .hero-title {
-    font-size: 3rem;
+    font-size: 2rem;
     font-weight: 700;
     line-height: 1.2;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
     color: var(--text-primary);
   }
 
@@ -216,39 +335,38 @@ document.addEventListener("DOMContentLoaded", function () {
   .hero-accent:after {
     content: "";
     position: absolute;
-    bottom: 5px;
+    bottom: 4px;
     left: 0;
     right: 0;
-    height: 8px;
+    height: 6px;
     background: var(--accent);
     opacity: 0.3;
-    border-radius: 4px;
+    border-radius: 3px;
     z-index: -1;
   }
 
   .hero-text {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     color: var(--text-secondary);
-    margin-bottom: 2rem;
-    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
   }
 
   .hero-buttons {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
   }
 
   .hero-image i {
-    font-size: 12rem;
+    font-size: 7rem;
     color: var(--accent);
-    opacity: 0.8;
-    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+    opacity: 0.7;
   }
 
   /* Section Title */
   .section-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
     position: relative;
@@ -259,9 +377,9 @@ document.addEventListener("DOMContentLoaded", function () {
   .section-title:after {
     content: "";
     position: absolute;
-    bottom: -10px;
+    bottom: -8px;
     left: 0;
-    width: 60px;
+    width: 50px;
     height: 3px;
     background: var(--accent);
     border-radius: 2px;
@@ -272,9 +390,9 @@ document.addEventListener("DOMContentLoaded", function () {
     background: transparent;
     border: 1.5px solid var(--border-medium);
     color: var(--text-secondary);
-    padding: 6px 18px;
+    padding: 5px 16px;
     border-radius: 25px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 500;
     text-decoration: none;
     transition: all 0.3s ease;
@@ -312,7 +430,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   .premium-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
     border-color: var(--accent);
   }
@@ -329,8 +447,8 @@ document.addEventListener("DOMContentLoaded", function () {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     background: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
     color: #dc3545;
@@ -346,7 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   .wishlist-btn i {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   [data-theme="dark"] .wishlist-btn {
@@ -370,9 +488,9 @@ document.addEventListener("DOMContentLoaded", function () {
   .badge-featured {
     background: linear-gradient(135deg, #c7a252, #a07e3e);
     color: #1c1c1a;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
-    padding: 4px 10px;
+    padding: 3px 8px;
     border-radius: 20px;
     display: inline-block;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -381,9 +499,9 @@ document.addEventListener("DOMContentLoaded", function () {
   .badge-discount {
     background: #dc3545;
     color: white;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
-    padding: 4px 10px;
+    padding: 3px 8px;
     border-radius: 20px;
     display: inline-block;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -392,9 +510,9 @@ document.addEventListener("DOMContentLoaded", function () {
   .badge-bestseller {
     background: #198754;
     color: white;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
-    padding: 4px 10px;
+    padding: 3px 8px;
     border-radius: 20px;
     display: inline-block;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -403,9 +521,9 @@ document.addEventListener("DOMContentLoaded", function () {
   .badge-new {
     background: #0dcaf0;
     color: #1c1c1a;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
-    padding: 4px 10px;
+    padding: 3px 8px;
     border-radius: 20px;
     display: inline-block;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -450,15 +568,15 @@ document.addEventListener("DOMContentLoaded", function () {
   .overlay-btn {
     background: var(--accent);
     color: #1c1c1a;
-    padding: 8px 16px;
+    padding: 6px 14px;
     border-radius: 30px;
     text-decoration: none;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 600;
     transition: all 0.3s;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
 
   .overlay-btn:hover {
@@ -469,7 +587,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* Card Body */
   .card-body {
-    padding: 1rem;
+    padding: 0.85rem;
   }
 
   /* Rating Stars */
@@ -480,7 +598,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   .book-rating i {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: #ffc107;
   }
 
@@ -489,14 +607,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   .rating-count {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     margin-left: 5px;
   }
 
   /* Card Title & Author */
   .card-title {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
     color: var(--text-primary);
@@ -508,9 +626,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   .card-author {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-secondary);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
@@ -531,21 +649,21 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   .price {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 800;
     color: var(--accent);
   }
 
   .original-price {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     text-decoration: line-through;
   }
 
   .cart-icon-btn {
     background: var(--accent-bg);
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -566,10 +684,13 @@ document.addEventListener("DOMContentLoaded", function () {
     background: var(--accent);
     color: #1c1c1a;
     border: none;
-    padding: 12px 28px;
+    padding: 8px 20px;
     border-radius: 30px;
     font-weight: 600;
+    font-size: 0.85rem;
     transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
   }
 
   .btn-premium:hover {
@@ -580,12 +701,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   .btn-outline-premium {
     background: transparent;
-    border: 2px solid var(--accent);
+    border: 1.5px solid var(--accent);
     color: var(--accent);
-    padding: 10px 26px;
+    padding: 7px 19px;
     border-radius: 30px;
     font-weight: 600;
+    font-size: 0.85rem;
     transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
   }
 
   .btn-outline-premium:hover {
@@ -594,24 +718,19 @@ document.addEventListener("DOMContentLoaded", function () {
     transform: translateY(-2px);
   }
 
-  .btn-lg {
-    padding: 12px 32px;
-    font-size: 1rem;
-  }
-
   /* Responsive */
   @media (max-width: 768px) {
     .hero-section {
-      padding: 40px 0;
+      padding: 20px 0;
       text-align: center;
     }
 
     .hero-title {
-      font-size: 2rem;
+      font-size: 1.6rem;
     }
 
     .hero-text {
-      font-size: 1rem;
+      font-size: 0.85rem;
     }
 
     .hero-buttons {
@@ -619,57 +738,69 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     .hero-image i {
-      font-size: 6rem;
-      margin-top: 2rem;
+      font-size: 4rem;
+      margin-top: 1rem;
     }
 
     .section-title {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
     }
 
     .card-title {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
 
     .price {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
     .cart-icon-btn {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
     }
 
     .cart-icon-btn i {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
     }
 
     .category-btn {
-      padding: 4px 14px;
-      font-size: 0.75rem;
+      padding: 4px 12px;
+      font-size: 0.7rem;
     }
 
     .wishlist-btn {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
     }
 
     .wishlist-btn i {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+    }
+    
+    .search-form {
+      flex-direction: column;
+    }
+    
+    .search-submit-btn {
+      padding: 8px 16px;
+    }
+    
+    .search-section {
+      max-width: 100%;
     }
   }
 
   @media (max-width: 576px) {
     .card-body {
-      padding: 0.75rem;
+      padding: 0.65rem;
     }
 
     .book-rating i {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
     }
 
     .rating-count {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
     }
   }
 </style>
@@ -677,10 +808,3 @@ document.addEventListener("DOMContentLoaded", function () {
 {% endblock %}
 
 {% endblock %}
-
-
-
-
-
-
-

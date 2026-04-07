@@ -26,6 +26,67 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/style.css" />
 
+    <style>
+      /* FIX: Push main content below fixed navbar */
+      main {
+        padding-top: 100px !important;
+        min-height: calc(100vh - 250px);
+      }
+
+      @media (max-width: 768px) {
+        main {
+          padding-top: 80px !important;
+        }
+      }
+      
+      /* Smaller Footer */
+      footer {
+        background: var(--bg-secondary);
+        border-top: 1px solid var(--border-light);
+        padding: 20px 0 12px;
+        margin-top: 30px;
+      }
+      
+      footer h5 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      footer h6 {
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      footer p, footer li, footer a {
+        font-size: 0.7rem;
+        line-height: 1.3;
+      }
+      
+      footer .mb-4 {
+        margin-bottom: 0.5rem !important;
+      }
+      
+      footer .mb-2 {
+        margin-bottom: 0.25rem !important;
+      }
+      
+      footer .list-unstyled li {
+        margin-bottom: 0.2rem !important;
+      }
+      
+      footer hr {
+        margin: 0.5rem 0 0.5rem !important;
+      }
+      
+      footer .d-flex {
+        gap: 0.75rem !important;
+      }
+      
+      footer .fa-lg {
+        font-size: 0.85rem !important;
+      }
+    </style>
+
     {% block extra_css %}{% endblock %}
   </head>
   <body>
@@ -46,46 +107,31 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-          <!-- Search -->
-          <div class="search-wrapper mx-auto">
-            <form method="get" action="{% url 'book_list' %}" class="w-100">
-              <input
-                class="search-input"
-                type="search"
-                placeholder="Search books..."
-                name="q"
-              />
-              <button class="search-btn" type="submit">
-                <i class="fa-solid fa-magnifying-glass"></i>
-              </button>
-            </form>
-          </div>
-
           <!-- Nav links -->
           <ul class="navbar-nav ms-auto align-items-center gap-2">
-            <!-- Cart -->
+            {% if request.user.is_authenticated %}
+            <!-- Cart - Only visible when logged in -->
             <li class="nav-item">
               <a class="nav-link cart-btn" href="{% url 'view_cart' %}">
                 <i class="fa-solid fa-bag-shopping"></i>
                 Cart
-                {% if request.user.is_authenticated %}
-                    {% with cart=request.user.cart_set.first %}
-                        {% if cart and cart.items.count %}
-                            <span class="cart-badge">{{ cart.items.count }}</span>
-                        {% endif %}
-                    {% endwith %}
-                {% endif %}
+                {% with cart=request.user.cart_set.first %}
+                  {% if cart and cart.items.count %}
+                    <span class="cart-badge">{{ cart.items.count }}</span>
+                  {% endif %}
+                {% endwith %}
               </a>
             </li>
 
-            <!-- Orders -->
+            <!-- Orders - Only visible when logged in -->
             <li class="nav-item">
               <a class="nav-link" href="{% url 'order_history' %}">
                 <i class="fa-regular fa-clock me-1"></i>Orders
               </a>
             </li>
+            {% endif %}
 
-            <!-- Theme Toggle -->
+            <!-- Theme Toggle - Visible to everyone -->
             <li class="nav-item">
               <button class="theme-toggle" id="themeToggle">
                 <i class="fa-regular fa-moon" id="themeIcon"></i>
@@ -93,7 +139,7 @@
             </li>
 
             {% if request.user.is_authenticated %}
-            <!-- User Dropdown -->
+            <!-- User Dropdown - Only visible when logged in -->
             <li class="nav-item dropdown">
               <a
                 class="nav-link username-display dropdown-toggle"
@@ -110,16 +156,6 @@
                     <i class="fa-regular fa-user me-2"></i>My Profile
                   </a>
                 </li>
-                <!-- <li>
-                  <a class="dropdown-item" href="{% url 'order_history' %}">
-                    <i class="fa-regular fa-clock me-2"></i>Order History
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="{% url 'order_history' %}">
-                    <i class="fa-regular fa-truck me-2"></i>Track Order
-                  </a>
-                </li> -->
                 <li>
                   <a class="dropdown-item" href="{% url 'wishlist' %}">
                     <i class="fa-regular fa-heart me-2"></i>Wishlist
@@ -135,7 +171,7 @@
               </ul>
             </li>
             {% else %}
-            <!-- Login/Signup -->
+            <!-- Login/Signup - Only visible when logged out -->
             <li class="nav-item">
               <a class="nav-link" href="{% url 'login' %}">
                 <i class="fa-regular fa-keyboard me-1"></i>Login
@@ -155,49 +191,48 @@
     <!-- Main Content -->
     <main>{% block content %}{% endblock %}</main>
 
-    <!-- Footer -->
+    <!-- Footer - Small -->
     <footer>
       <div class="container">
         <div class="row">
           <div class="col-md-4 mb-4">
             <h5 style="color: var(--accent)" class="mb-3">BiblioCart</h5>
-            <p style="color: var(--text-secondary); font-size: 0.9rem">
-              Discover your next great read from our curated collection of
-              premium books.
+            <p style="color: var(--text-secondary); font-size: 0.7rem; margin-bottom: 0;">
+              Discover your next great read from our curated collection of premium books.
             </p>
           </div>
           <div class="col-md-2 mb-4">
             <h6 style="color: var(--text-primary)" class="mb-3">Explore</h6>
             <ul class="list-unstyled">
               <li class="mb-2">
-                <a href="{% url 'book_list' %}" style="color: var(--text-secondary)">Home</a>
+                <a href="{% url 'book_list' %}" style="color: var(--text-secondary); font-size: 0.7rem;">Home</a>
               </li>
               <li class="mb-2">
-                <a href="{% url 'view_cart' %}" style="color: var(--text-secondary)">Cart</a>
+                <a href="{% url 'view_cart' %}" style="color: var(--text-secondary); font-size: 0.7rem;">Cart</a>
               </li>
               <li class="mb-2">
-                <a href="{% url 'order_history' %}" style="color: var(--text-secondary)">Orders</a>
+                <a href="{% url 'order_history' %}" style="color: var(--text-secondary); font-size: 0.7rem;">Orders</a>
               </li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h6 style="color: var(--text-primary)" class="mb-3">Contact</h6>
             <ul class="list-unstyled">
-              <li class="mb-2" style="color: var(--text-secondary)">hello@BiblioCart.com</li>
-              <li class="mb-2" style="color: var(--text-secondary)">+91 123456789</li>
+              <li class="mb-2" style="color: var(--text-secondary); font-size: 0.7rem;">hello@BiblioCart.com</li>
+              <li class="mb-2" style="color: var(--text-secondary); font-size: 0.7rem;">+91 123456789</li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h6 style="color: var(--text-primary)" class="mb-3">Follow Us</h6>
             <div class="d-flex gap-3">
-              <a href="#" style="color: var(--text-secondary)"><i class="fa-brands fa-twitter fa-lg"></i></a>
-              <a href="#" style="color: var(--text-secondary)"><i class="fa-brands fa-instagram fa-lg"></i></a>
-              <a href="#" style="color: var(--text-secondary)"><i class="fa-brands fa-facebook fa-lg"></i></a>
+              <a href="#" style="color: var(--text-secondary);"><i class="fa-brands fa-twitter" style="font-size: 0.8rem;"></i></a>
+              <a href="#" style="color: var(--text-secondary);"><i class="fa-brands fa-instagram" style="font-size: 0.8rem;"></i></a>
+              <a href="#" style="color: var(--text-secondary);"><i class="fa-brands fa-facebook" style="font-size: 0.8rem;"></i></a>
             </div>
           </div>
         </div>
-        <hr style="border-color: var(--border-light)" class="mt-2 mb-4" />
-        <div class="text-center" style="color: var(--text-muted); font-size: 0.85rem">
+        <hr style="border-color: var(--border-light); margin: 0.5rem 0 0.5rem;" />
+        <div class="text-center" style="color: var(--text-muted); font-size: 0.65rem; padding: 0.25rem 0;">
           <p>&copy; {{ now|date:"Y" }} BiblioCart. All rights reserved.</p>
         </div>
       </div>

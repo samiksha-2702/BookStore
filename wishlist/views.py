@@ -4,7 +4,7 @@ from .models import Wishlist, WishlistItem
 from books.models import Book
 from django.http import JsonResponse   # ADD THIS IMPORT
 
-@login_required
+@login_required(login_url='login/')
 def add_to_wishlist(request, book_id):
     book = get_object_or_404(Book, id=book_id)
 

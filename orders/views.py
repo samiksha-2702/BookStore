@@ -15,12 +15,14 @@ from cart.models import Cart, CartItem
 from .models import Order, OrderItem
 
 # Initialize Razorpay client
-razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+razorpay_client = razorpay.Client(
+    auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+)
+
 
 
 @login_required
 def checkout(request):
-    """Checkout page: shows cart and lets user proceed to payment"""
     try:
         cart = Cart.objects.get(user=request.user)
     except Cart.DoesNotExist:
@@ -30,19 +32,18 @@ def checkout(request):
     if not cart_items.exists():
         return redirect('view_cart')
 
-    # Calculate total and per-item total
     total_amount = 0
     for item in cart_items:
         item.total_price = item.book.price * item.quantity
         total_amount += item.total_price
 
     if request.method == "POST":
-        # Create Django order
         order = Order.objects.create(
             user=request.user,
             total_amount=total_amount,
             status="Pending"
         )
+
         for item in cart_items:
             OrderItem.objects.create(
                 order=order,
@@ -51,7 +52,6 @@ def checkout(request):
                 price=item.book.price
             )
 
-        # Redirect to payment page with order ID
         return redirect('payment', order_id=order.id)
 
     return render(request, "orders/checkout.html", {
@@ -60,22 +60,21 @@ def checkout(request):
     })
 
 
+
 @login_required
 def payment_view(request, order_id):
-    """Payment page: creates Razorpay order and opens checkout"""
     order = get_object_or_404(Order, id=order_id, user=request.user)
     cart_items = order.items.all()
 
-    
     if order.razorpay_order_id:
         razorpay_order_id = order.razorpay_order_id
     else:
-        # Create Razorpay order
         razorpay_order = razorpay_client.order.create({
-            "amount": int(order.total_amount * 100),  # paise
+            "amount": int(order.total_amount * 100),
             "currency": "INR",
             "payment_capture": 1
         })
+
         razorpay_order_id = razorpay_order['id']
         order.razorpay_order_id = razorpay_order_id
         order.save()
@@ -92,17 +91,17 @@ def payment_view(request, order_id):
     return render(request, "orders/payment.html", context)
 
 
+
 @csrf_exempt
 @login_required
 def payment_verify(request):
-    """Verify Razorpay payment signature"""
     if request.method == "POST":
         data = json.loads(request.body)
+
         razorpay_payment_id = data.get("razorpay_payment_id")
         razorpay_order_id = data.get("razorpay_order_id")
         razorpay_signature = data.get("razorpay_signature")
 
-        # Verify signature
         generated_signature = hmac.new(
             bytes(settings.RAZORPAY_KEY_SECRET, 'utf-8'),
             msg=bytes(f"{razorpay_order_id}|{razorpay_payment_id}", 'utf-8'),
@@ -110,57 +109,91 @@ def payment_verify(request):
         ).hexdigest()
 
         if generated_signature == razorpay_signature:
-            # Payment verified
-            order = get_object_or_404(Order, razorpay_order_id=razorpay_order_id, user=request.user)
-            order.status = "Completed"
+            order = get_object_or_404(
+                Order,
+                razorpay_order_id=razorpay_order_id,
+                user=request.user
+            )
+
+            # ✅ FIX: realistic flow
+            order.status = "Processing"
             order.razorpay_payment_id = razorpay_payment_id
             order.save()
+
             return JsonResponse({"status": "success", "order_id": order.id})
 
         return JsonResponse({"status": "fail"})
+
     return JsonResponse({"status": "invalid method"})
+
 
 
 @login_required
 def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    # Add total_price to each item so template doesn't need 'mul'
     for item in order.items.all():
         item.total_price = item.price * item.quantity
 
     return render(request, "orders/order_success.html", {"order": order})
 
+
+# ===================== ORDER HISTORY =====================
 @login_required
 def order_history(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, "orders/order_history.html", {"orders": orders})
+
+    # ✅ REAL STATS (IMPORTANT)
+    total_orders = orders.count()
+    completed_orders = orders.filter(
+        status__in=["Completed", "Delivered"]
+    ).count()
+
+    in_transit_orders = orders.filter(
+        status__in=["Processing", "Shipped"]
+    ).count()
+
+    return render(request, "orders/order_history.html", {
+        "orders": orders,
+        "total_orders": total_orders,
+        "completed_orders": completed_orders,
+        "in_transit_orders": in_transit_orders
+    })
+
 
 
 @login_required
 def download_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    # Add total_price for each item
     for item in order.items.all():
         item.total_price = item.price * item.quantity
 
-    # Render invoice to PDF
     html = render_to_string('orders/invoice.html', {'order': order})
+
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.pdf"'
+
     pisa_status = pisa.CreatePDF(html, dest=response)
+
     if pisa_status.err:
-        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return HttpResponse('Error generating PDF')
+
     return response
+
+
 
 @login_required
 def track_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    stages = ['Pending', 'Processing', 'Shipped', 'Completed']
 
-    # Calculate current stage index
-    current_stage_index = stages.index(order.status) if order.status in stages else 0
+    # ✅ Industry-standard stages
+    stages = ['Pending', 'Processing', 'Shipped', 'Delivered']
+
+    current_stage_index = (
+        stages.index(order.status)
+        if order.status in stages else 0
+    )
 
     return render(request, 'orders/track_order.html', {
         'order': order,
