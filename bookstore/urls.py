@@ -32,6 +32,9 @@ urlpatterns = [
     path('cart/', include('cart.urls')),
     path('orders/', include('orders.urls')),
     path('wishlist/', include('wishlist.urls')),
+
+    # api
+    path('api/', include('api.urls')),
 ]
 
 # media files (images)

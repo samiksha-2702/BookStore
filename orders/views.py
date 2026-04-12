@@ -10,7 +10,6 @@ import razorpay
 import json
 import hmac
 import hashlib
-
 from cart.models import Cart, CartItem
 from .models import Order, OrderItem
 
@@ -121,16 +120,20 @@ def payment_verify(request):
                 user=request.user
             )
 
+           
             order.status = "Processing"
             order.razorpay_payment_id = razorpay_payment_id
             order.save()
+
+            
+            cart = Cart.objects.get(user=request.user)
+            CartItem.objects.filter(cart=cart).delete()
 
             return JsonResponse({"status": "success", "order_id": order.id})
 
         return JsonResponse({"status": "fail"})
 
     return JsonResponse({"status": "invalid method"})
-
 
 
 @login_required
