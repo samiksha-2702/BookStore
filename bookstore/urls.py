@@ -35,6 +35,9 @@ urlpatterns = [
 
     # api
     path('api/', include('api.urls')),
+
+    # chatbot
+    path("api/", include("chatbot.urls")),
 ]
 
 # media files (images)
