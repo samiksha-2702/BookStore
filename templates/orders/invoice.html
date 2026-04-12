@@ -66,6 +66,7 @@
     </style>
 </head>
 <body>
+
     <div class="invoice-header">
         <h2>BOOKSTORE INVOICE</h2>
         <p>Invoice #{{ order.id }}</p>
@@ -75,7 +76,10 @@
         <p><strong>Customer:</strong> {{ order.user.username }}</p>
         <p><strong>Email:</strong> {{ order.user.email|default:"Not provided" }}</p>
         <p><strong>Order Date:</strong> {{ order.created_at|date:"d M Y H:i" }}</p>
-        <p><strong>Payment Status:</strong> <span style="color: #28a745;">Paid</span></p>
+        <p><strong>Status:</strong> {{ order.status }}</p>
+        <p><strong>Payment ID:</strong> {{ order.razorpay_payment_id|default:"N/A" }}</p>
+        <p><strong>Phone:</strong> {{ order.phone|default:"N/A" }}</p>
+        <p><strong>Address:</strong> {{ order.user.profile.address_line1|default:"N/A" }}</p>
     </div>
     
     <table>
@@ -92,15 +96,15 @@
             <tr>
                 <td>{{ item.book.title }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>₹{{ item.price|floatformat:"2"|floatformat:"2" }}</td>
-                <td>₹{{ item.price|floatformat:2|floatformat:"2"|floatformat:"2" }}</td>
+                <td>₹{{ item.price|floatformat:2 }}</td>
+                <td>₹{{ item.total_price|floatformat:2 }}</td>
             </tr>
             {% endfor %}
         </tbody>
         <tfoot>
             <tr>
                 <td colspan="3" class="total">Subtotal:</td>
-                <td>₹{{ order.total_amount }}</td>
+                <td>₹{{ order.total_amount|floatformat:2 }}</td>
             </tr>
             <tr>
                 <td colspan="3" class="total">Shipping:</td>
@@ -108,7 +112,7 @@
             </tr>
             <tr>
                 <td colspan="3" class="total grand-total">Grand Total:</td>
-                <td class="grand-total">₹{{ order.total_amount }}</td>
+                <td class="grand-total">₹{{ order.total_amount|floatformat:2 }}</td>
             </tr>
         </tfoot>
     </table>
@@ -117,5 +121,6 @@
         <p>Thank you for shopping with BookStore!</p>
         <p>support@bookstore.com | www.bookstore.com</p>
     </div>
+
 </body>
 </html>

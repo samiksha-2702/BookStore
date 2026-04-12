@@ -4,6 +4,10 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.db import transaction
 from django.conf import settings
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from io import BytesIO
+from xhtml2pdf import pisa
 
 import razorpay
 import hmac
@@ -211,14 +215,39 @@ def verify_payment(request):
 
         CartItem.objects.filter(cart__user=order.user).delete()
 
-        return Response({"message": "Payment successful"})
+        for item in order.items.all():
+            item.total_price = item.price * item.quantity
+
+        html = render_to_string('orders/invoice.html', {'order': order})
+
+        pdf_buffer = BytesIO()
+        pisa.CreatePDF(html, dest=pdf_buffer)
+
+        email = EmailMessage(
+            subject=f"Invoice for Order #{order.id}",
+            body="Thank you for your purchase. Your invoice is attached.",
+            from_email=settings.EMAIL_HOST_USER,
+            to=[order.user.email],
+        )
+
+        email.attach(f"invoice_{order.id}.pdf", pdf_buffer.getvalue(), 'application/pdf')
+        email.send()
+
+        return Response({"message": "Payment successful and invoice emailed"})
+
     else:
         return Response({"error": "Verification failed"}, status=400)
 
-
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+# def my_orders(request):
+#     orders = Order.objects.filter(user=request.user).order_by('-created_at')
+#     serializer = OrderSerializer(orders, many=True)
+#     return Response(serializer.data)
 def my_orders(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data)
+    try:
+        orders = Order.objects.filter(user=request.user).order_by('-created_at')
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({"error": str(e)})

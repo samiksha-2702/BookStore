@@ -181,10 +181,7 @@ def download_invoice(request, order_id):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.pdf"'
 
-    pisa_status = pisa.CreatePDF(html, dest=response)
-
-    if pisa_status.err:
-        return HttpResponse('Error generating PDF')
+    pisa.CreatePDF(html, dest=response)
 
     return response
 

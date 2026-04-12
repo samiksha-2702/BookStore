@@ -22,8 +22,8 @@ router.register(r'books', BookViewSet)
 urlpatterns = [
     path('', include(router.urls)),
 
-    path('auth/register/', register),
-    path('auth/login/', LoginView.as_view()),
+    path('register/', register),
+    path('login/', LoginView.as_view()),
 
     path('cart/', view_cart),
     path('cart/add/', add_to_cart),
