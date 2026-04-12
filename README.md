@@ -6,20 +6,23 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![Django](https://img.shields.io/badge/Django-4.x-092E20?style=flat-square&logo=django&logoColor=white)](https://djangoproject.com)
+[![DRF](https://img.shields.io/badge/DRF-REST%20API-red?style=flat-square&logo=django&logoColor=white)](https://www.django-rest-framework.org/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?style=flat-square&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
 [![Razorpay](https://img.shields.io/badge/Razorpay-Payment%20Gateway-02042B?style=flat-square&logo=razorpay&logoColor=white)](https://razorpay.com)
 [![SQLite](https://img.shields.io/badge/Database-SQLite%20%2F%20MySQL-003B57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)
+[![JWT](https://img.shields.io/badge/Auth-JWT-black?style=flat-square&logo=jsonwebtokens&logoColor=white)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Demo](https://img.shields.io/badge/Demo-Coming%20Soon-orange?style=flat-square)](#)
 
 <br/>
 
 > BiblioCart is a full-stack e-commerce web application for buying books online.  
-> Browse books, save to wishlist, manage your cart, pay securely, and track every order — all in one place.
+> Browse books, save to wishlist, manage your cart, pay securely, and track every order — all in one place.  
+> Now with a fully documented **REST API** built using Django REST Framework.
 
 <br/>
 
-[Overview](#-overview) · [Features](#-features) · [Tech Stack](#-tech-stack) · [Architecture](#-architecture) · [Installation](#-installation) · [Project Structure](#-project-structure) · [Screenshots](#-screenshots) · [Future Improvements](#-future-improvements) · [Author](#-author)
+[Overview](#-overview) · [Features](#-features) · [Tech Stack](#-tech-stack) · [Architecture](#-architecture) · [REST API](#-rest-api) · [Installation](#-installation) · [Project Structure](#-project-structure) · [Screenshots](#-screenshots) · [Future Improvements](#-future-improvements) · [Author](#-author)
 
 </div>
 
@@ -29,7 +32,7 @@
 
 BiblioCart is a real-world e-commerce platform built with Django, targeting book lovers and readers. It implements a complete end-to-end purchase workflow — from browsing and searching books to placing an order and tracking its delivery status.
 
-This project demonstrates practical full-stack development skills including backend architecture, payment gateway integration, order lifecycle management, and a responsive, user-friendly interface.
+This project demonstrates practical full-stack development skills including backend architecture, payment gateway integration, order lifecycle management, a REST API layer, and a responsive, user-friendly interface.
 
 ---
 
@@ -37,8 +40,9 @@ This project demonstrates practical full-stack development skills including back
 
 ### 🔐 Authentication
 - User registration, login, and logout
-- Session-based secure access
-- User-specific data isolation (orders, cart, history)
+- Session-based secure access for web views
+- **JWT-based authentication** for REST API consumers
+- User-specific data isolation (orders, cart, wishlist, history)
 
 ### 📖 Books & Browsing
 - Browse the full book catalog
@@ -71,6 +75,19 @@ This project demonstrates practical full-stack development skills including back
 ### 🧾 Invoice
 - Invoice download for completed orders
 
+### 🤖 Smart Recommendations
+- **Personalised recommendations** based on the user's order history and category preferences
+- **"Customers Also Bought"** — collaborative filtering based on co-purchase patterns
+- **Trending books** — ranked by total order volume across all users
+- Guest fallback: bestsellers and new arrivals shown to unauthenticated users
+
+### 🌐 REST API
+- Full API layer built with Django REST Framework
+- JWT authentication via `djangorestframework-simplejwt`
+- Endpoints for books, cart, wishlist, orders, checkout, and payment verification
+- Advanced filtering, search, and ordering on book listings
+- See the [REST API](#-rest-api) section for the full endpoint reference
+
 ### 📱 Responsive UI
 - Built with Bootstrap 5
 - Mobile-friendly layout across all pages
@@ -82,9 +99,12 @@ This project demonstrates practical full-stack development skills including back
 | Layer | Technology |
 |---|---|
 | **Backend** | Python, Django |
+| **REST API** | Django REST Framework, SimpleJWT |
 | **Frontend** | HTML5, CSS3, Bootstrap 5, JavaScript |
 | **Database** | SQLite (default) · MySQL (configurable) |
 | **Payment** | Razorpay (Test Mode) |
+| **Auth (API)** | JWT (djangorestframework-simplejwt) |
+| **Filtering** | django-filter |
 | **Version Control** | Git & GitHub |
 
 ---
@@ -100,6 +120,8 @@ bibliocart/
 ├── cart/           # Cart logic, session management
 ├── orders/         # Order creation, tracking, history
 ├── users/          # Authentication, profile
+├── wishlist/       # Wishlist management
+├── api/            # REST API — views, serializers, URLs, filters
 │
 ├── templates/      # HTML templates (per-app + shared base)
 ├── static/         # CSS, JS, images
@@ -115,6 +137,151 @@ bibliocart/
 - Custom template filters for dynamic price calculations (e.g., `quantity × price`)
 - User-scoped querysets to prevent unauthorized order access
 - Razorpay's JS SDK integrated at the frontend, verified server-side
+- REST API layer in a dedicated `api/` app — clean separation from web views
+- JWT tokens for stateless API authentication
+- Collaborative filtering for "Customers Also Bought" recommendations
+
+---
+
+## 🌐 REST API
+
+BiblioCart exposes a REST API for programmatic access to all core features. All API endpoints are prefixed with `/api/`.
+
+### Authentication
+
+The API uses **JWT (JSON Web Tokens)**. Obtain a token pair via the login endpoint and include the access token in subsequent requests:
+
+```
+Authorization: Bearer <access_token>
+```
+
+---
+
+### 📘 Endpoint Reference
+
+#### Auth
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/register/` | Public | Register a new user |
+| `POST` | `/api/login/` | Public | Login and receive JWT token pair |
+
+**Register — Request Body:**
+```json
+{
+  "username": "samiksha",
+  "email": "samiksha@example.com",
+  "password": "yourpassword"
+}
+```
+
+**Login — Response:**
+```json
+{
+  "access": "<access_token>",
+  "refresh": "<refresh_token>"
+}
+```
+
+---
+
+#### 📖 Books
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/books/` | Public | List all books |
+| `GET` | `/api/books/<id>/` | Public | Retrieve a single book |
+| `GET` | `/api/recommended/` | Public* | Personalised recommendations |
+| `GET` | `/api/also-bought/<book_id>/` | Public | "Customers Also Bought" |
+| `GET` | `/api/trending/` | Public | Trending books by order count |
+
+\* Returns personalised results for authenticated users; bestsellers/new arrivals for guests.
+
+**Filtering & Search on `/api/books/`:**
+
+| Parameter | Example | Description |
+|-----------|---------|-------------|
+| `search` | `?search=python` | Search by title, author, or category |
+| `ordering` | `?ordering=price` | Sort by `price` or `created_at` (prefix `-` for descending) |
+| Category filter | `?category=1` | Filter by category ID (via `django-filter`) |
+
+---
+
+#### 🛒 Cart
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/cart/` | Required | View current cart |
+| `POST` | `/api/cart/add/` | Required | Add a book to cart |
+| `PUT` | `/api/cart/update/<item_id>/` | Required | Update item quantity |
+| `DELETE` | `/api/cart/remove/<item_id>/` | Required | Remove an item from cart |
+
+**Add to Cart — Request Body:**
+```json
+{
+  "book": 3,
+  "quantity": 2
+}
+```
+
+---
+
+#### ❤️ Wishlist
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/wishlist/` | Required | View wishlist |
+| `POST` | `/api/wishlist/add/` | Required | Add a book to wishlist |
+| `DELETE` | `/api/wishlist/remove/<item_id>/` | Required | Remove a book from wishlist |
+
+---
+
+#### 💳 Checkout & Payment
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/checkout/` | Required | Create a Razorpay order from cart |
+| `POST` | `/api/verify-payment/` | Public | Verify Razorpay payment and confirm order |
+
+**Checkout — Response:**
+```json
+{
+  "order_id": 12,
+  "razorpay_order_id": "order_XXXXXXXX",
+  "amount": 799.00
+}
+```
+
+**Verify Payment — Request Body:**
+```json
+{
+  "razorpay_order_id": "order_XXXXXXXX",
+  "razorpay_payment_id": "pay_XXXXXXXX"
+}
+```
+
+---
+
+#### 📦 Orders
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/my-orders/` | Required | List all orders for the logged-in user |
+
+---
+
+### Router-registered Endpoints (BookViewSet)
+
+The `BookViewSet` is registered with DRF's `DefaultRouter`, providing the full set of standard REST endpoints automatically:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/books/` | List all books |
+| `POST` | `/api/books/` | Create a book (admin) |
+| `GET` | `/api/books/<id>/` | Retrieve a book |
+| `PUT` | `/api/books/<id>/` | Update a book (admin) |
+| `PATCH` | `/api/books/<id>/` | Partial update (admin) |
+| `DELETE` | `/api/books/<id>/` | Delete a book (admin) |
 
 ---
 
@@ -196,7 +363,8 @@ python manage.py loaddata books_sample.json
 python manage.py runserver
 ```
 
-Visit `http://127.0.0.1:8000` in your browser.
+Visit `http://127.0.0.1:8000` in your browser.  
+Access the browsable API at `http://127.0.0.1:8000/api/`.
 
 ---
 
@@ -223,9 +391,19 @@ bibliocart/
 │   ├── views.py               # Checkout, order history, order detail, tracking
 │   └── urls.py
 │
+├── wishlist/
+│   ├── models.py              # Wishlist, WishlistItem models
+│   └── views.py
+│
 ├── users/
 │   ├── views.py               # Register, login, logout
 │   └── forms.py
+│
+├── api/
+│   ├── views.py               # All DRF API views (BookViewSet, cart, orders, etc.)
+│   ├── serializers.py         # DRF serializers for all models
+│   ├── urls.py                # API URL routing with DefaultRouter
+│   └── filters.py             # BookFilter using django-filter
 │
 ├── templates/
 │   ├── base.html                  # Shared layout, navbar, footer
@@ -313,7 +491,8 @@ bibliocart/
 - [ ] Introduce **discount codes and coupons**
 - [ ] Integrate **email notifications** for order updates
 - [ ] Write unit and integration **tests** for core modules
-- [ ] Implement a **REST API** layer using Django REST Framework
+- [ ] Add **API rate limiting** and throttling for production use
+- [ ] Generate interactive **API docs** with Swagger / drf-spectacular
 
 ---
 
