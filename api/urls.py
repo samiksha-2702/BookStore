@@ -1,7 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from .views import customers_also_bought, register, trending_books
 from .views import (
     BookViewSet,
+    recommended_books,
     register,
     LoginView,
     view_cart,
@@ -38,4 +40,7 @@ urlpatterns = [
     path('verify-payment/', verify_payment),
 
     path('my-orders/', my_orders),
+    path('recommended/', recommended_books, name='recommended'),
+    path('also-bought/<int:book_id>/', customers_also_bought),
+    path('trending/', trending_books),
 ]

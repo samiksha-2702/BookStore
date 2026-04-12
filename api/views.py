@@ -11,6 +11,7 @@ from xhtml2pdf import pisa
 from rest_framework import filters
 from .filters import BookFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Q, Count
 
 import razorpay
 import hmac
@@ -42,6 +43,12 @@ class BookViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'author', 'category__name']
     ordering_fields = ['price', 'created_at']
 
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+class LoginView(TokenObtainPairView):
+    serializer_class = LoginSerializer
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
@@ -50,13 +57,6 @@ def register(request):
         serializer.save()
         return Response({"message": "User registered successfully"})
     return Response(serializer.errors, status=400)
-
-
-from rest_framework_simplejwt.views import TokenObtainPairView
-
-class LoginView(TokenObtainPairView):
-    serializer_class = LoginSerializer
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -234,3 +234,56 @@ def get_total_amount_calculated(self, obj):
     if not items.exists():
         return 0
     return sum(item.quantity * item.price for item in items)
+
+# recommendations
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def recommended_books(request):
+    user = request.user
+
+    if user.is_authenticated:
+        ordered_books = OrderItem.objects.filter(order__user=user).values_list('book_id', flat=True)
+        categories = Book.objects.filter(id__in=ordered_books).values_list('category', flat=True)
+
+        recommended = Book.objects.filter(
+            Q(category__in=categories) | Q(is_bestseller=True)
+        ).exclude(id__in=ordered_books).distinct()[:10]
+
+    else:
+        # fallback for guest users
+        recommended = Book.objects.filter(
+            Q(is_bestseller=True) | Q(new_arrival=True)
+        ).distinct()[:10]
+
+    serializer = BookSerializer(recommended, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def customers_also_bought(request, book_id):
+    # users who bought this book
+    users = OrderItem.objects.filter(
+        book_id=book_id
+    ).values_list('order__user', flat=True)
+
+    # books bought by those users
+    books = OrderItem.objects.filter(
+        order__user__in=users
+    ).exclude(book_id=book_id)
+
+    recommended_books = Book.objects.filter(
+        id__in=books.values_list('book_id', flat=True)
+    ).distinct()[:10]
+
+    serializer = BookSerializer(recommended_books, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def trending_books(request):
+    books = Book.objects.annotate(
+        total_orders=Count('orderitem')
+    ).order_by('-total_orders')[:10]
+
+    serializer = BookSerializer(books, many=True)
+    return Response(serializer.data)
