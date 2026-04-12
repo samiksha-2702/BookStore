@@ -9,6 +9,8 @@ from django.template.loader import render_to_string
 from io import BytesIO
 from xhtml2pdf import pisa
 from rest_framework import filters
+from .filters import BookFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 import razorpay
 import hmac
@@ -34,10 +36,11 @@ class BookViewSet(viewsets.ModelViewSet):
     serializer_class = BookSerializer
     permission_classes = [AllowAny]
 
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = BookFilter
+
     search_fields = ['title', 'author', 'category__name']
     ordering_fields = ['price', 'created_at']
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
