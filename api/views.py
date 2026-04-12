@@ -8,6 +8,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from io import BytesIO
 from xhtml2pdf import pisa
+from rest_framework import filters
 
 import razorpay
 import hmac
@@ -32,6 +33,10 @@ class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all().order_by('-created_at')
     serializer_class = BookSerializer
     permission_classes = [AllowAny]
+
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'author', 'category__name']
+    ordering_fields = ['price', 'created_at']
 
 
 @api_view(['POST'])
