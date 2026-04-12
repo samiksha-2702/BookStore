@@ -1,375 +1,496 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
-<div class="container mt-5">
-    <div class="row g-4">
-        <!-- Book Image Section -->
-        <div class="col-md-4">
-            <div class="book-image-wrapper">
-                <img src="{{ book.image.url }}" class="img-fluid rounded-3 shadow" alt="{{ book.title }}">
-                
-                <!-- Badges -->
-                <div class="book-badges">
-                    {% if book.is_featured %}
-                        <span class="badge-featured">Featured</span>
-                    {% elif book.discount_percentage %}
-                        <span class="badge-discount">-{{ book.discount_percentage }}%</span>
-                    {% elif book.is_bestseller %}
-                        <span class="badge-bestseller">Bestseller</span>
-                    {% elif book.new_arrival %}
-                        <span class="badge-new">New</span>
-                    {% endif %}
-                </div>
-            </div>
+<div class="container mt-4">
+  <div class="row g-4">
+    <!-- Book Image Section -->
+    <div class="col-md-4">
+      <div class="book-image-wrapper">
+        <img
+          src="{{ book.image.url }}"
+          class="img-fluid rounded-3 shadow"
+          alt="{{ book.title }}"
+        />
+
+        <!-- Badges -->
+        <div class="book-badges">
+          {% if book.is_featured %}
+          <span class="badge-featured">Featured</span>
+          {% elif book.discount_percentage %}
+          <span class="badge-discount">-{{ book.discount_percentage }}%</span>
+          {% elif book.is_bestseller %}
+          <span class="badge-bestseller">Bestseller</span>
+          {% elif book.new_arrival %}
+          <span class="badge-new">New</span>
+          {% endif %}
         </div>
-        
-        <!-- Book Details Section -->
-        <div class="col-md-8">
-            <div class="book-details">
-                <h2 class="book-title">{{ book.title }}</h2>
-                <p class="book-author">
-                    <i class="fa-regular fa-user me-1"></i>{{ book.author }}
-                </p>
-                
-                <!-- Rating Section -->
-                <div class="rating-section mb-2">
-                    <div class="book-rating">
-                        {% with book.avg_rating|default:4 as rating %}
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= rating %}
-                                    <i class="fa-solid fa-star"></i>
-                                {% else %}
-                                    <i class="fa-regular fa-star"></i>
-                                {% endif %}
-                            {% endfor %}
-                        {% endwith %}
-                        <span class="rating-count">({{ book.review_count|default:24 }})</span>
-                    </div>
-                </div>
-                
-                <!-- Price Section -->
-                <div class="price-section mb-3">
-                    {% if book.discount_percentage %}
-                        <span class="original-price">₹{{ book.price }}</span>
-                        <span class="discounted-price">₹{{ book.discounted_price }}</span>
-                        <span class="discount-badge">-{{ book.discount_percentage }}%</span>
-                    {% else %}
-                        <span class="discounted-price">₹{{ book.price }}</span>
-                    {% endif %}
-                </div>
-                
-                <!-- Description -->
-                <div class="description-section mb-3">
-                    <p class="book-description">{{ book.description|truncatechars:200 }}</p>
-                </div>
-                
-                <!-- Book Details Info -->
-                <div class="book-info mb-3">
-                    <div class="row g-2">
-                        {% if book.publisher %}
-                        <div class="col-6">
-                            <div class="info-item">
-                                <i class="fa-regular fa-building"></i>
-                                <span>{{ book.publisher }}</span>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if book.publication_date %}
-                        <div class="col-6">
-                            <div class="info-item">
-                                <i class="fa-regular fa-calendar"></i>
-                                <span>{{ book.publication_date|date:"Y" }}</span>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if book.isbn %}
-                        <div class="col-6">
-                            <div class="info-item">
-                                <i class="fa-regular fa-barcode"></i>
-                                <span>{{ book.isbn }}</span>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if book.pages %}
-                        <div class="col-6">
-                            <div class="info-item">
-                                <i class="fa-regular fa-file-lines"></i>
-                                <span>{{ book.pages }} pages</span>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <a href="{% url 'add_to_cart' book.id %}" class="btn-add-to-cart">
-                        <i class="fa-solid fa-bag-shopping me-1"></i>Add to Cart
-                    </a>
-                    <a href="{% url 'book_list' %}" class="btn-back-to-store">
-                        <i class="fa-regular fa-arrow-left me-1"></i>Back
-                    </a>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+
+    <!-- Book Details Section -->
+    <div class="col-md-8">
+      <div class="book-details">
+        <h2 class="book-title">{{ book.title }}</h2>
+        <p class="book-author">
+          <i class="fa-regular fa-user me-1"></i>{{ book.author }}
+        </p>
+
+        <!-- Rating Section -->
+        <div class="rating-section mb-2">
+          <div class="book-rating">
+            {% with book.avg_rating|default:4 as rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= rating %}
+                  <i class="fa-solid fa-star"></i>
+                {% else %}
+                  <i class="fa-regular fa-star"></i>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+            <span class="rating-count">({{ book.review_count|default:24 }})</span>
+          </div>
+        </div>
+
+        <!-- Price Section -->
+        <div class="price-section mb-3">
+          {% if book.discount_percentage %}
+          <span class="original-price">₹{{ book.price }}</span>
+          <span class="discounted-price">₹{{ book.discounted_price }}</span>
+          <span class="discount-badge">-{{ book.discount_percentage }}%</span>
+          {% else %}
+          <span class="discounted-price">₹{{ book.price }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="description-section mb-3">
+          <p class="book-description">{{ book.description|truncatechars:200 }}</p>
+        </div>
+
+        <!-- Book Details Info -->
+        <div class="book-info mb-3">
+          <div class="row g-2">
+            {% if book.publisher %}
+            <div class="col-6">
+              <div class="info-item">
+                <i class="fa-regular fa-building"></i>
+                <span>{{ book.publisher }}</span>
+              </div>
+            </div>
+            {% endif %} 
+            {% if book.publication_date %}
+            <div class="col-6">
+              <div class="info-item">
+                <i class="fa-regular fa-calendar"></i>
+                <span>{{ book.publication_date|date:"Y" }}</span>
+              </div>
+            </div>
+            {% endif %} 
+            {% if book.isbn %}
+            <div class="col-6">
+              <div class="info-item">
+                <i class="fa-regular fa-barcode"></i>
+                <span>{{ book.isbn }}</span>
+              </div>
+            </div>
+            {% endif %} 
+            {% if book.pages %}
+            <div class="col-6">
+              <div class="info-item">
+                <i class="fa-regular fa-file-lines"></i>
+                <span>{{ book.pages }} pages</span>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <a href="{% url 'add_to_cart' book.id %}" class="btn-add-to-cart">
+            <i class="fa-solid fa-bag-shopping me-1"></i>Add to Cart
+          </a>
+          <a href="{% url 'book_list' %}" class="btn-back-to-store">
+            <i class="fa-regular fa-arrow-left me-1"></i>Back
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- You May Also Like Section -->
+{% if recommended_books %}
+<div class="container mt-4">
+  <div class="recommended-header">
+    <h4 class="recommended-title">
+      <i class="fa-regular fa-star me-2"></i>You May Also Like
+    </h4>
+  </div>
+  <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3 g-md-4">
+    {% for rec in recommended_books|slice:":5" %}
+    <div class="col">
+      <a href="{% url 'book_detail' rec.id %}" class="rec-card-link">
+        <div class="rec-card">
+          {% if rec.image %}
+            <img src="{{ rec.image.url }}" class="rec-img" alt="{{ rec.title }}">
+          {% else %}
+            <img src="/static/default-book.png" class="rec-img" alt="Book">
+          {% endif %}
+          <div class="rec-card-body">
+            <h6 class="rec-title">{{ rec.title|truncatechars:30 }}</h6>
+            <p class="rec-author">{{ rec.author|truncatechars:15 }}</p>
+            <p class="rec-price">₹{{ rec.price }}</p>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 
 <!-- Add this extra CSS for book detail specific styles -->
 {% block extra_css %}
 <style>
-    /* FIX: Push content below fixed navbar */
-    main {
-        padding-top: 100px !important;
-    }
-    
-    /* Book Image Wrapper */
-    .book-image-wrapper {
-        position: relative;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: var(--shadow-sm);
-    }
-    
-    .book-image-wrapper img {
-        width: 100%;
-        height: auto;
-        transition: transform 0.3s ease;
-    }
-    
-    .book-image-wrapper:hover img {
-        transform: scale(1.02);
-    }
-    
-    /* Badges on Image */
-    .book-badges {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 2;
-    }
-    
-    .badge-featured {
-        background: linear-gradient(135deg, #c7a252, #a07e3e);
-        color: #1c1c1a;
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 20px;
-        display: inline-block;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
-    .badge-discount {
-        background: #dc3545;
-        color: white;
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 20px;
-        display: inline-block;
-    }
-    
-    .badge-bestseller {
-        background: #198754;
-        color: white;
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 20px;
-        display: inline-block;
-    }
-    
-    .badge-new {
-        background: #0dcaf0;
-        color: #1c1c1a;
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 20px;
-        display: inline-block;
-    }
-    
-    /* Book Details */
-    .book-details {
-        padding: 0;
-    }
-    
+  /* Fix navbar overlap */
+  main {
+    padding-top: 100px !important;
+  }
+
+  /* Book Image Wrapper */
+  .book-image-wrapper {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .book-image-wrapper img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s ease;
+  }
+
+  .book-image-wrapper:hover img {
+    transform: scale(1.02);
+  }
+
+  /* Badges on Image */
+  .book-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+  }
+
+  .badge-featured {
+    background: linear-gradient(135deg, #c7a252, #a07e3e);
+    color: #1c1c1a;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .badge-discount {
+    background: #dc3545;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+
+  .badge-bestseller {
+    background: #198754;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+
+  .badge-new {
+    background: #0dcaf0;
+    color: #1c1c1a;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+
+  /* Book Details */
+  .book-details {
+    padding: 0;
+  }
+
+  .book-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+  }
+
+  .book-author {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Rating Section */
+  .book-rating {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .book-rating i {
+    font-size: 0.8rem;
+    color: #ffc107;
+  }
+
+  .book-rating i.fa-regular {
+    color: var(--text-muted);
+  }
+
+  .rating-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: 5px;
+  }
+
+  /* Price Section */
+  .price-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 0;
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .discounted-price {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .original-price {
+    font-size: 1rem;
+    color: var(--text-muted);
+    text-decoration: line-through;
+  }
+
+  .discount-badge {
+    background: #dc3545;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  /* Description Section */
+  .book-description {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+  }
+
+  /* Book Info Items */
+  .book-info {
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .info-item i {
+    width: 16px;
+    color: var(--accent);
+    font-size: 0.8rem;
+  }
+
+  .info-item span {
+    color: var(--text-primary);
+  }
+
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-add-to-cart {
+    background: var(--accent);
+    color: #1c1c1a;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-add-to-cart:hover {
+    background: var(--accent-dark);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(199, 162, 82, 0.2);
+  }
+
+  .btn-back-to-store {
+    background: transparent;
+    border: 1.5px solid var(--border-medium);
+    color: var(--text-primary);
+    padding: 7px 22px;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-back-to-store:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  /* You May Also Like Section */
+  .recommended-header {
+    margin-bottom: 1rem;
+  }
+  
+  .recommended-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    position: relative;
+    display: inline-block;
+  }
+  
+  .recommended-title:after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+  
+  .rec-card-link {
+    text-decoration: none;
+  }
+  
+  .rec-card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+    transition: all 0.3s ease;
+  }
+  
+  .rec-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+  }
+  
+  .rec-img {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+  }
+  
+  .rec-card-body {
+    padding: 0.5rem;
+  }
+  
+  .rec-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .rec-author {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .rec-price {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
     .book-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-        line-height: 1.2;
+      font-size: 1.4rem;
     }
-    
-    .book-author {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        margin-bottom: 0.75rem;
-    }
-    
-    /* Rating Section */
-    .book-rating {
-        display: flex;
-        align-items: center;
-        gap: 3px;
-    }
-    
-    .book-rating i {
-        font-size: 0.8rem;
-        color: #ffc107;
-    }
-    
-    .book-rating i.fa-regular {
-        color: var(--text-muted);
-    }
-    
-    .rating-count {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        margin-left: 5px;
-    }
-    
-    /* Price Section */
-    .price-section {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-        padding: 10px 0;
-        border-top: 1px solid var(--border-light);
-        border-bottom: 1px solid var(--border-light);
-    }
-    
+
     .discounted-price {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--accent);
+      font-size: 1.3rem;
     }
-    
-    .original-price {
-        font-size: 1rem;
-        color: var(--text-muted);
-        text-decoration: line-through;
-    }
-    
-    .discount-badge {
-        background: #dc3545;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 15px;
-        font-size: 0.7rem;
-        font-weight: 600;
-    }
-    
-    /* Description Section */
-    .book-description {
-        font-size: 0.9rem;
-        line-height: 1.5;
-        color: var(--text-secondary);
-        margin-bottom: 0;
-    }
-    
-    /* Book Info Items */
-    .book-info {
-        background: var(--bg-tertiary);
-        border-radius: 10px;
-        padding: 12px;
-    }
-    
-    .info-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-    }
-    
-    .info-item i {
-        width: 16px;
-        color: var(--accent);
-        font-size: 0.8rem;
-    }
-    
-    .info-item span {
-        color: var(--text-primary);
-    }
-    
-    /* Action Buttons */
+
     .action-buttons {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
+      flex-direction: column;
     }
-    
-    .btn-add-to-cart {
-        background: var(--accent);
-        color: #1c1c1a;
-        border: none;
-        padding: 8px 24px;
-        border-radius: 30px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-    }
-    
-    .btn-add-to-cart:hover {
-        background: var(--accent-dark);
-        color: white;
-        transform: translateY(-1px);
-        box-shadow: 0 3px 10px rgba(199, 162, 82, 0.2);
-    }
-    
+
+    .btn-add-to-cart,
     .btn-back-to-store {
-        background: transparent;
-        border: 1.5px solid var(--border-medium);
-        color: var(--text-primary);
-        padding: 7px 22px;
-        border-radius: 30px;
-        font-weight: 500;
-        font-size: 0.85rem;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
+      justify-content: center;
+    }
+
+    .book-info {
+      padding: 10px;
+    }
+
+    .info-item {
+      font-size: 0.7rem;
     }
     
-    .btn-back-to-store:hover {
-        border-color: var(--accent);
-        color: var(--accent);
-        transform: translateY(-1px);
+    .rec-title {
+      font-size: 0.7rem;
     }
     
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .book-title {
-            font-size: 1.4rem;
-        }
-        
-        .discounted-price {
-            font-size: 1.3rem;
-        }
-        
-        .action-buttons {
-            flex-direction: column;
-        }
-        
-        .btn-add-to-cart, .btn-back-to-store {
-            justify-content: center;
-        }
-        
-        .book-info {
-            padding: 10px;
-        }
-        
-        .info-item {
-            font-size: 0.7rem;
-        }
+    .rec-price {
+      font-size: 0.75rem;
     }
+  }
 </style>
 {% endblock %}
 
