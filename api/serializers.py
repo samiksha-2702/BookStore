@@ -107,10 +107,18 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = [
+            'id',
+            'user',
+            'total_amount',
+            'status',
+            'phone',
+            'created_at',
+            'razorpay_order_id',
+            'razorpay_payment_id',
+            'items',
+            'total_amount_calculated'
+        ]
 
     def get_total_amount_calculated(self, obj):
-        items = obj.items.all()
-        if not items:
-            return 0
-        return sum(item.quantity * item.price for item in items)
+        return sum(item.quantity * item.price for item in obj.items.all())

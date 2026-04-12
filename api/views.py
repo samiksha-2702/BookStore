@@ -198,56 +198,31 @@ def checkout(request):
 def verify_payment(request):
     razorpay_order_id = request.data.get('razorpay_order_id')
     razorpay_payment_id = request.data.get('razorpay_payment_id')
-    razorpay_signature = request.data.get('razorpay_signature')
 
-    generated_signature = hmac.new(
-        key=bytes(settings.RAZORPAY_KEY_SECRET, 'utf-8'),
-        msg=bytes(f"{razorpay_order_id}|{razorpay_payment_id}", 'utf-8'),
-        digestmod=hashlib.sha256
-    ).hexdigest()
-
-    if generated_signature == razorpay_signature:
+    try:
         order = Order.objects.get(razorpay_order_id=razorpay_order_id)
 
         order.razorpay_payment_id = razorpay_payment_id
         order.status = "Completed"
         order.save()
 
+        # clear cart
         CartItem.objects.filter(cart__user=order.user).delete()
 
-        for item in order.items.all():
-            item.total_price = item.price * item.quantity
+        return Response({"message": "Payment successful (test mode)"})
 
-        html = render_to_string('orders/invoice.html', {'order': order})
-
-        pdf_buffer = BytesIO()
-        pisa.CreatePDF(html, dest=pdf_buffer)
-
-        email = EmailMessage(
-            subject=f"Invoice for Order #{order.id}",
-            body="Thank you for your purchase. Your invoice is attached.",
-            from_email=settings.EMAIL_HOST_USER,
-            to=[order.user.email],
-        )
-
-        email.attach(f"invoice_{order.id}.pdf", pdf_buffer.getvalue(), 'application/pdf')
-        email.send()
-
-        return Response({"message": "Payment successful and invoice emailed"})
-
-    else:
-        return Response({"error": "Verification failed"}, status=400)
+    except Order.DoesNotExist:
+        return Response({"error": "Order not found"}, status=404)
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def my_orders(request):
-#     orders = Order.objects.filter(user=request.user).order_by('-created_at')
-#     serializer = OrderSerializer(orders, many=True)
-#     return Response(serializer.data)
+@permission_classes([IsAuthenticated])
 def my_orders(request):
-    try:
-        orders = Order.objects.filter(user=request.user).order_by('-created_at')
-        serializer = OrderSerializer(orders, many=True)
-        return Response(serializer.data)
-    except Exception as e:
-        return Response({"error": str(e)})
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    serializer = OrderSerializer(orders, many=True)
+    return Response(serializer.data)
+
+def get_total_amount_calculated(self, obj):
+    items = obj.items.all()
+    if not items.exists():
+        return 0
+    return sum(item.quantity * item.price for item in items)
