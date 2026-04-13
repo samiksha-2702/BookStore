@@ -11,18 +11,19 @@
 [![Razorpay](https://img.shields.io/badge/Razorpay-Payment%20Gateway-02042B?style=flat-square&logo=razorpay&logoColor=white)](https://razorpay.com)
 [![SQLite](https://img.shields.io/badge/Database-SQLite%20%2F%20MySQL-003B57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)
 [![JWT](https://img.shields.io/badge/Auth-JWT-black?style=flat-square&logo=jsonwebtokens&logoColor=white)](#)
+[![Gemini](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-4285F4?style=flat-square&logo=google&logoColor=white)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Demo](https://img.shields.io/badge/Demo-Coming%20Soon-orange?style=flat-square)](#)
 
 <br/>
 
 > BiblioCart is a full-stack e-commerce web application for buying books online.  
-> Browse books, save to wishlist, manage your cart, pay securely, and track every order — all in one place.  
-> Now with a fully documented **REST API** built using Django REST Framework.
+> Browse books, save to wishlist, manage your cart, pay securely, track every order — and get smart book recommendations powered by AI.  
+> Now with a fully documented **REST API** and an **AI-powered chatbot assistant**.
 
 <br/>
 
-[Overview](#-overview) · [Features](#-features) · [Tech Stack](#-tech-stack) · [Architecture](#-architecture) · [REST API](#-rest-api) · [Installation](#-installation) · [Project Structure](#-project-structure) · [Screenshots](#-screenshots) · [Future Improvements](#-future-improvements) · [Author](#-author)
+[Overview](#-overview) · [Features](#-features) · [Tech Stack](#-tech-stack) · [Architecture](#-architecture) · [REST API](#-rest-api) · [Recommendations](#-smart-recommendations) · [Chatbot](#-ai-chatbot-assistant) · [Installation](#-installation) · [Project Structure](#-project-structure) · [Screenshots](#-screenshots) · [Future Improvements](#-future-improvements) · [Author](#-author)
 
 </div>
 
@@ -32,7 +33,7 @@
 
 BiblioCart is a real-world e-commerce platform built with Django, targeting book lovers and readers. It implements a complete end-to-end purchase workflow — from browsing and searching books to placing an order and tracking its delivery status.
 
-This project demonstrates practical full-stack development skills including backend architecture, payment gateway integration, order lifecycle management, a REST API layer, and a responsive, user-friendly interface.
+This project demonstrates practical full-stack development skills including backend architecture, payment gateway integration, order lifecycle management, a REST API layer, smart recommendation algorithms, and an AI-powered chatbot — all wrapped in a responsive, user-friendly interface.
 
 ---
 
@@ -81,6 +82,14 @@ This project demonstrates practical full-stack development skills including back
 - **Trending books** — ranked by total order volume across all users
 - Guest fallback: bestsellers and new arrivals shown to unauthenticated users
 
+### 💬 AI Chatbot Assistant
+- Conversational book assistant powered by **Google Gemini 2.5 Flash**
+- Intent detection for common queries (greetings, price queries, recommendations, similar books)
+- Session-based short-term memory (last 5 messages) for context-aware responses
+- Database-backed search by title, author, or category before invoking the AI
+- Graceful AI fallback for open-ended or unmatched queries
+- Strict scope enforcement — only responds to book-related questions
+
 ### 🌐 REST API
 - Full API layer built with Django REST Framework
 - JWT authentication via `djangorestframework-simplejwt`
@@ -104,6 +113,7 @@ This project demonstrates practical full-stack development skills including back
 | **Database** | SQLite (default) · MySQL (configurable) |
 | **Payment** | Razorpay (Test Mode) |
 | **Auth (API)** | JWT (djangorestframework-simplejwt) |
+| **AI Chatbot** | Google Gemini 2.5 Flash (`google-generativeai`) |
 | **Filtering** | django-filter |
 | **Version Control** | Git & GitHub |
 
@@ -122,6 +132,7 @@ bibliocart/
 ├── users/          # Authentication, profile
 ├── wishlist/       # Wishlist management
 ├── api/            # REST API — views, serializers, URLs, filters
+├── chatbot/        # AI chatbot — intent detection, Gemini integration
 │
 ├── templates/      # HTML templates (per-app + shared base)
 ├── static/         # CSS, JS, images
@@ -140,6 +151,7 @@ bibliocart/
 - REST API layer in a dedicated `api/` app — clean separation from web views
 - JWT tokens for stateless API authentication
 - Collaborative filtering for "Customers Also Bought" recommendations
+- Chatbot uses rule-based intent detection first; Gemini AI is invoked only as a fallback
 
 ---
 
@@ -270,6 +282,28 @@ Authorization: Bearer <access_token>
 
 ---
 
+#### 💬 Chatbot
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/chat/` | Public | Send a message to the AI assistant |
+
+**Request Body:**
+```json
+{
+  "message": "Suggest some books on machine learning"
+}
+```
+
+**Response:**
+```json
+{
+  "reply": "📚 Found Books:\n\n📖 Hands-On Machine Learning - ₹499\n📖 Python Machine Learning - ₹399"
+}
+```
+
+---
+
 ### Router-registered Endpoints (BookViewSet)
 
 The `BookViewSet` is registered with DRF's `DefaultRouter`, providing the full set of standard REST endpoints automatically:
@@ -285,6 +319,68 @@ The `BookViewSet` is registered with DRF's `DefaultRouter`, providing the full s
 
 ---
 
+## 🧠 Smart Recommendations
+
+BiblioCart uses multiple recommendation strategies to surface relevant books:
+
+| Strategy | Logic | Shown To |
+|---|---|---|
+| **Personalised** | Books from categories the user has ordered before | Authenticated users |
+| **Customers Also Bought** | Collaborative filtering — other users who ordered this book also ordered... | All users |
+| **Trending** | Ranked by total order volume across all users | All users |
+| **Guest Fallback** | Bestsellers and new arrivals | Unauthenticated users |
+
+These are available both via the web UI and through the REST API (`/api/recommended/`, `/api/also-bought/<book_id>/`, `/api/trending/`).
+
+---
+
+## 💬 AI Chatbot Assistant
+
+BiblioCart includes an AI-powered book assistant built with **Google Gemini 2.5 Flash**.
+
+### How It Works
+
+The chatbot processes messages through a layered pipeline:
+
+```
+User Message
+     │
+     ▼
+Intent Detection  ──────────────────────────────────────────────────────────────────────►  greeting / thanks / bye
+     │                                                                                            │
+     ▼                                                                                            ▼
+DB Search (title / author / category)  ──── match found ────►  return matching books        static reply
+     │
+  no match
+     │
+     ▼
+Intent Fallback
+  ├── low_price   ──►  cheapest 5 books from DB
+  ├── recommend   ──►  most ordered books from DB
+  ├── similar     ──►  same-category books from DB
+  └── general     ──►  Gemini AI (book-scoped prompt)
+```
+
+### Features
+
+- **Intent detection** for common patterns: greetings, price queries, recommendations, similar books
+- **Database-first** — searches title, author, and category before invoking the AI model
+- **Session memory** — retains the last 5 messages for context-aware conversations
+- **Gemini AI fallback** — handles open-ended, complex, or unexpected queries
+- **Scope enforcement** — the AI is prompted to only answer book-related questions and politely decline others
+
+### Configuration
+
+Add your Gemini API key to `.env`:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+Get a free key at [Google AI Studio](https://aistudio.google.com/).
+
+---
+
 ## ⚙️ Installation
 
 Follow these steps to run BiblioCart locally.
@@ -295,6 +391,7 @@ Follow these steps to run BiblioCart locally.
 - pip
 - Git
 - A [Razorpay](https://razorpay.com) account (for test API keys)
+- A [Google AI Studio](https://aistudio.google.com/) account (for the Gemini chatbot)
 
 ### 1. Clone the Repository
 
@@ -334,6 +431,7 @@ SECRET_KEY=your_django_secret_key
 DEBUG=True
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 > ⚠️ Never commit your `.env` file. It is already included in `.gitignore`.
@@ -404,6 +502,9 @@ bibliocart/
 │   ├── serializers.py         # DRF serializers for all models
 │   ├── urls.py                # API URL routing with DefaultRouter
 │   └── filters.py             # BookFilter using django-filter
+│
+├── chatbot/
+│   └── views.py               # Chatbot — intent detection, DB search, Gemini fallback
 │
 ├── templates/
 │   ├── base.html                  # Shared layout, navbar, footer
@@ -493,6 +594,7 @@ bibliocart/
 - [ ] Write unit and integration **tests** for core modules
 - [ ] Add **API rate limiting** and throttling for production use
 - [ ] Generate interactive **API docs** with Swagger / drf-spectacular
+- [ ] Expand chatbot to support **multi-turn conversation** and order status queries
 
 ---
 
