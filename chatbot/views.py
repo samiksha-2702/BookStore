@@ -35,7 +35,7 @@ def get_intent(message):
     if any(word in message for word in ["recommend", "suggest", "best"]):
         return "recommend"
 
-    if any(word in message for word in ["similar", "more like", "like this"]):
+    if any(word in message for word in ["similar", "more like", "like this","more like this"]):
         return "similar"
 
     return "general"
