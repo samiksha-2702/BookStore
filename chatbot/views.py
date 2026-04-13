@@ -29,7 +29,7 @@ def get_intent(message):
     if any(word in message for word in ["bye", "goodbye", "see you"]):
         return "bye"
 
-    if any(word in message for word in ["price", "cheap", "low", "budget"]):
+    if any(word in message for word in ["price", "cheap", "low", "budget"]): 
         return "low_price"
 
     if any(word in message for word in ["recommend", "suggest", "best"]):
