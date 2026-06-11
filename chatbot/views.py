@@ -2,18 +2,14 @@ import json
 from django.http import JsonResponse
 from django.conf import settings
 from django.db.models import Count
+from rest_framework import response
 
 from books.models import Book
-import google.generativeai as genai
+from google import genai
 
-
-
-# 🔑 GEMINI SETUP
-
-genai.configure(api_key=settings.GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-2.5-flash")
-
-
+client = genai.Client(
+    api_key=settings.GEMINI_API_KEY
+)
 
 # 🧠 INTENT DETECTION
 
@@ -171,13 +167,19 @@ You are BiblioCart AI bookstore assistant.
 Conversation:
 {context}
 
+Current User Question:
+{user_message}
+
 RULES:
-- Only answer book-related questions
-- If not related to books, politely refuse
-- Keep answers short (2–3 lines)
+- Only answer book-related questions.
+- If the question is unrelated to books, politely refuse.
+- Keep answers short (2–3 lines).
 """
 
-            response = model.generate_content(prompt)
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt,
+            )
 
             return JsonResponse({
                 "reply": response.text
