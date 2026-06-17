@@ -53,7 +53,6 @@ pyhanko-certvalidator==0.30.2
 PyJWT==2.12.1
 pyparsing==3.3.2
 pypdf==6.9.2
-python-bidi==0.4.2
 python-decouple==3.8
 python-dotenv==1.2.2
 PyYAML==6.0.3
